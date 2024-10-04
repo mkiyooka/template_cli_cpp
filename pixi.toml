@@ -5,14 +5,22 @@ description = "C++ Development Environment"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
+[activation]
+scripts = ["context/setup.sh"]
+
+[activation.env]
+LD_LIBRARY_PATH = "${PIXI_PROJECT_ROOT}/lib:$LD_LIBRARY_PATH"
+
 [dependencies]
 # C++17 minimum requirement: clang >= 5.0, gcc >= 7.0, MSVC >= 19.14 (VS2017)
 clang = "==21.1.1"  # Latest stable version - available on all platforms
+lld = "==21.1.1"  # LLVM linker
 clang-tools = "==21.1.1"  # Includes: clang-tidy, clang-format, clangd
 cppcheck = "==2.18.3"  # Static analysis tool
 cmake = "==4.1.1"  # Build system generator
 ninja = "==1.13.1"  # Build system
-typos = ">=1.36.3,<2"
+typos = ">=1.36.3,<2"  # Spell checker
+sccache = ">=0.10.0,<0.11"  # C/C++ compiler cache
 
 [target.linux-64.dependencies]
 gcc = "==15.1.0"  # GCC compiler
