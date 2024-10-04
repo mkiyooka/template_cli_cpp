@@ -83,27 +83,48 @@
 
     /* ignore, exclude settings */
     "files.exclude": {
+        // Python environments
         "**/.venv": true,
         "**/.nox": true,
         "**/.ruff_cache": true,
         "**/.pytest_cache": true,
         "**/__pycache__": true,
-        "**/*.egg-info": true
+        "**/*.egg-info": true,
+        // C++ build artifacts
+        "**/.pixi": true,
+        "**/build": true,
+        "**/.cache": true,
+        "**/*.o": true,
+        "**/*.obj": true
     },
     "files.watcherExclude": {
+        // Python environments
         "**/.venv": true,
         "**/.nox": true,
         "**/.ruff_cache": true,
         "**/.pytest_cache": true,
         "**/__pycache__": true,
-        "**/ext": true
+        "**/ext": true,
+        // C++ build artifacts
+        "**/.pixi": true,
+        "**/build": true,
+        "**/.cache": true,
+        "**/*.o": true,
+        "**/*.obj": true,
+        "**/CMakeFiles": true
     },
     "search.exclude": {
+        // Python environments
         "**/.venv": true,
         "**/.nox": true,
         "**/.ruff_cache": true,
         "**/.pytest_cache": true,
         "**/__pycache__": true,
-        "**/ext": true
+        "**/ext": true,
+        // C++ build artifacts
+        "**/.pixi": true,
+        "**/build": true,
+        "**/.cache": true,
+        "**/CMakeFiles": true
     }
 }
