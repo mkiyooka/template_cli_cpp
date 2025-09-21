@@ -24,5 +24,11 @@ int Cli(int argc, char *argv[]) {
     Config conf;
     LoadConfig(config_file, conf);
     fmt::print("title: {}, value: {}\n", conf.title, conf.value);
+    for (const auto &p : conf.plugins_a) {
+        fmt::print("  pluginA: file={}, number={}\n", p.file, p.number);
+    }
+    for (const auto &p : conf.plugins_b) {
+        fmt::print("  pluginB: file={}, number={}\n", p.file, p.number);
+    }
     return 0;
 }

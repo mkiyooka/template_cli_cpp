@@ -1,2 +1,20 @@
 title = "Example TOML Configuration"
+
+[settings]
 value = 42
+
+[[pluginA]]
+file = "fileA1.toml"
+number = 10
+
+[[pluginA]]
+file = "fileA2.toml"
+number = 15
+
+[[pluginB]]
+file = "fileB1.toml"
+number = 20
+
+[[pluginB]]
+file = "fileB2.toml"
+number = 25
