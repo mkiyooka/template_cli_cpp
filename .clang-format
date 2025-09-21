@@ -1,0 +1,22 @@
+---
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 120 # >= 3.7
+UseTab: Never # >= 3.7
+TabWidth: 4 # >= 3.7
+AccessModifierOffset: -4 # >= 3.3
+IndentCaseLabels: true # >= 3.3
+AlwaysBreakTemplateDeclarations: Yes # >= 3.4
+BreakBeforeBraces: Attach # >= 3.7
+SpaceBeforeParens: ControlStatements # >= 3.5
+Standard: c++17
+
+AlignAfterOpenBracket: BlockIndent # >= 3.8
+AlignArrayOfStructures: Right # >= 13
+PackConstructorInitializers: Never # >= 14
+
+# インクルード順序
+SortIncludes: CaseSensitive # >= 4
+IncludeBlocks: Preserve # >= 6
+
+IndentPPDirectives: AfterHash # > 6

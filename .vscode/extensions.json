@@ -1,0 +1,19 @@
+{
+    "recommendations": [
+        // C/C++拡張
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "usernamehw.errorlens",
+        "jbenden.c-cpp-flylint",
+        "cschlosser.doxdocgen",
+        // TOML拡張
+        "tamasfe.even-better-toml",
+        "tombi-toml.tombi",
+        // Markdown拡張
+        "DavidAnson.vscode-markdownlint",
+        "TakumiI.markdowntable",
+        // 汎用拡張
+        "esbenp.prettier-vscode"
+    ]
+}

@@ -1,0 +1,19 @@
+If:
+    PathMatch: .*
+
+CompileFlags:
+    CompilationDatabase: .
+    Add:
+        - -Wall
+        - -std=c++17
+    Compiler: clang++
+Completion:
+    HeaderInsertion: never
+InlayHints:
+    BlockEnd: false
+    Designators: true
+    Enabled: true
+    ParameterNames: true
+    DeducedTypes: true
+    DefaultArguments: false
+    TypeNameLimit: 24

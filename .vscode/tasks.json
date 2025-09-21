@@ -1,0 +1,89 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "cwd": "${workspaceFolder}"
+    },
+    "tasks": [
+        {
+            "label": "cmake_configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["-S.", "-Bbuild", "-DCMAKE_BUILD_TYPE=${input:buildType}"],
+            "group": { "kind": "build", "isDefault": false },
+            "detail": "CMakeでプロジェクトを設定",
+            "problemMatcher": []
+        },
+        {
+            "label": "cmake_build",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build"],
+            "group": { "kind": "build", "isDefault": true },
+            "detail": "CMakeでプロジェクトをビルド",
+            "dependsOn": ["cmake_configure"],
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "cmake_clean",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build", "--target", "clean"],
+            "group": "build",
+            "detail": "ビルド成果物をクリーンアップ"
+        },
+        {
+            "label": "run_tests",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build", "--target", "test"],
+            "group": "test",
+            "detail": "テストを実行",
+            "dependsOn": ["cmake_build"]
+        },
+        {
+            "label": "quality_format",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build", "--target", "format"],
+            "group": "build",
+            "detail": "clang-formatでコードをフォーマット",
+            "dependsOn": ["cmake_configure"]
+        },
+        {
+            "label": "quality_lint",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build", "--target", "lint"],
+            "group": "build",
+            "detail": "clang-tidyでコードをリント",
+            "dependsOn": ["cmake_configure"]
+        },
+        {
+            "label": "quality_cppcheck",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build", "--target", "run-cppcheck"],
+            "group": "build",
+            "detail": "cppcheckで静的解析を実行",
+            "dependsOn": ["cmake_configure"]
+        },
+        {
+            "label": "quality_fullcheck",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build", "--target", "fullcheck"],
+            "group": "build",
+            "detail": "全ての品質チェックを実行",
+            "dependsOn": ["cmake_configure"]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "buildType",
+            "description": "ビルドタイプを選択",
+            "type": "pickString",
+            "options": ["Debug", "Release", "RelWithDebInfo", "MinSizeRel"],
+            "default": "Release"
+        }
+    ]
+}

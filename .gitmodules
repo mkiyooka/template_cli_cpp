@@ -1,0 +1,3 @@
+[submodule "ext/lwlog"]
+	path = ext/lwlog
+	url = https://github.com/ChristianPanov/lwlog.git

@@ -1,0 +1,7 @@
+[env]
+_.path = []
+_.file = []
+_.source = []
+_.python.venv = { path = ".venv", create = true }
+
+UV_NATIVE_TLS = true

@@ -1,0 +1,124 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug cmd (add)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/cmd",
+            "args": [
+                "add",
+                "10",
+                "20"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "osx": { "MIMode": "lldb" },
+            "linux": { "MIMode": "gdb" },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for debugger",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "cmake_build"
+        },
+        {
+            "name": "Debug cmd (mul)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/cmd",
+            "args": [
+                "mul",
+                "5",
+                "7"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "osx": { "MIMode": "lldb" },
+            "linux": { "MIMode": "gdb" },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for debugger",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "cmake_build"
+        },
+        {
+            "name": "Debug cmd (with config)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/cmd",
+            "args": [
+                "--config",
+                "example.toml",
+                "add",
+                "15",
+                "25"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "osx": { "MIMode": "lldb" },
+            "linux": { "MIMode": "gdb" },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for debugger",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "cmake_build"
+        },
+        {
+            "name": "Debug cmd (custom args)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/cmd",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "osx": { "MIMode": "lldb" },
+            "linux": { "MIMode": "gdb" },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for debugger",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "cmake_build"
+        },
+        {
+            "name": "Debug test_toml",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tests/cpp/test_toml",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "osx": { "MIMode": "lldb" },
+            "linux": { "MIMode": "gdb" },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for debugger",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "cmake_build"
+        }
+    ]
+}
