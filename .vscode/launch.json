@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug cmd (add)",
+            "name": "Debug CLI11 (add)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd",
+            "program": "${workspaceFolder}/build/src/cmd_cli11",
             "args": [
                 "add",
                 "10",
@@ -27,12 +27,12 @@
             "preLaunchTask": "cmake_build"
         },
         {
-            "name": "Debug cmd (mul)",
+            "name": "Debug CLI11 (multiply)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd",
+            "program": "${workspaceFolder}/build/src/cmd_cli11",
             "args": [
-                "mul",
+                "multiply",
                 "5",
                 "7"
             ],
@@ -52,13 +52,40 @@
             "preLaunchTask": "cmake_build"
         },
         {
-            "name": "Debug cmd (with config)",
+            "name": "Debug Morris argparse (add)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd",
+            "program": "${workspaceFolder}/build/src/cmd_argparse_morris",
+            "args": [
+                "add",
+                "--a",
+                "10",
+                "--b",
+                "20"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "osx": { "MIMode": "lldb" },
+            "linux": { "MIMode": "gdb" },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for debugger",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "cmake_build"
+        },
+        {
+            "name": "Debug CLI11 (with config)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/cmd_cli11",
             "args": [
                 "--config",
-                "example.toml",
+                "config/example.toml",
                 "add",
                 "15",
                 "25"
@@ -79,10 +106,10 @@
             "preLaunchTask": "cmake_build"
         },
         {
-            "name": "Debug cmd (custom args)",
+            "name": "Debug CLI11 (custom args)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd",
+            "program": "${workspaceFolder}/build/src/cmd_cli11",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -100,10 +127,10 @@
             "preLaunchTask": "cmake_build"
         },
         {
-            "name": "Debug test_toml",
+            "name": "Debug test_sut_example",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tests/cpp/test_toml",
+            "program": "${workspaceFolder}/build/tests/cpp/test_sut_example",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

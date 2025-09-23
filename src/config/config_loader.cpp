@@ -1,5 +1,6 @@
 #include <string>
 
+#include <fmt/base.h>
 #include <toml++/toml.hpp>
 
 #include "config/config_loader.hpp"
@@ -12,26 +13,24 @@ void LoadConfig(const std::string &file_path, Config &conf) {
     conf.title = toml_config["title"].value_or("");
     conf.value = toml_config["settings"]["value"].value_or(0);
 
-    // lambda関数方式
-    if (auto *arr = toml_config["pluginA"].as_array()) {
-        arr->for_each([&conf](auto &&el) {
-            if (auto *table = el.as_table()) {
-                PluginConfig plugin;
-                plugin.file = (*table)["file"].value_or("");
-                plugin.number = (*table)["number"].value_or(0);
-                conf.plugins_a.push_back(plugin);
-            }
-        });
-    }
     // forループ方式
-    if (auto *arr = toml_config["pluginB"].as_array()) {
+    if (auto *arr = toml_config["plugin"].as_array()) {
         for (auto &&el : *arr) {
             if (auto *table = el.as_table()) {
                 PluginConfig plugin;
                 plugin.file = (*table)["file"].value_or("");
                 plugin.number = (*table)["number"].value_or(0);
-                conf.plugins_b.push_back(plugin);
+                conf.plugins.push_back(plugin);
             }
+        }
+    }
+}
+
+void ShowConfig(const Config &conf) {
+    if (!conf.title.empty() && conf.title != "title") {
+        fmt::print("title: {}, value: {}\n", conf.title, conf.value);
+        for (const auto &p : conf.plugins) {
+            fmt::print("  plugin: file={}, number={}\n", p.file, p.number);
         }
     }
 }

@@ -58,6 +58,22 @@ find_package(tomlplusplus REQUIRED)
 find_package(fmt REQUIRED)
 find_package(doctest REQUIRED)
 
+# FetchContentで導入するライブラリ
+include(FetchContent)
+
+# argparse libraries (header-only)
+# morrisfranken/argparse - use header-only approach
+FetchContent_Declare(
+    argparse_morris
+    GIT_REPOSITORY https://github.com/morrisfranken/argparse.git
+    GIT_TAG master
+)
+FetchContent_Populate(argparse_morris)
+
+# Create interface library for morris version
+add_library(argparse_morris_target INTERFACE)
+target_include_directories(argparse_morris_target INTERFACE ${argparse_morris_SOURCE_DIR}/include)
+
 # ==============================================================================
 # Main Application - メインCLIアプリケーション
 # ==============================================================================
@@ -98,7 +114,7 @@ add_custom_target(show-help
     COMMAND ${CMAKE_COMMAND} -E echo "=== Available Build Targets ==="
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Main application:"
-    COMMAND ${CMAKE_COMMAND} -E echo "  cmd                   - Main CLI application"
+    COMMAND ${CMAKE_COMMAND} -E echo "  cmd_cli11             - Main CLI application"
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Development targets:"
     COMMAND ${CMAKE_COMMAND} -E echo "  run-tests             - Run all tests"

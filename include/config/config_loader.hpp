@@ -11,8 +11,8 @@ struct PluginConfig {
 struct Config {
     std::string title = "title";
     std::uint64_t value = 10;
-    std::vector<struct PluginConfig> plugins_a;
-    std::vector<struct PluginConfig> plugins_b;
+    std::vector<struct PluginConfig> plugins;
 };
 
 void LoadConfig(const std::string &file_path, Config &conf);
+void ShowConfig(const Config &conf);

@@ -5,12 +5,22 @@
     },
     "tasks": [
         {
+            "label": "conan_install",
+            "type": "shell",
+            "command": "conan",
+            "args": ["install", ".", "-b", "missing", "--output-folder=build"],
+            "group": "build",
+            "detail": "Conanで依存関係をインストール",
+            "problemMatcher": []
+        },
+        {
             "label": "cmake_configure",
             "type": "shell",
             "command": "cmake",
-            "args": ["-S.", "-Bbuild", "-DCMAKE_BUILD_TYPE=${input:buildType}"],
+            "args": ["--preset", "${input:buildPreset}"],
             "group": { "kind": "build", "isDefault": false },
             "detail": "CMakeでプロジェクトを設定",
+            "dependsOn": ["conan_install"],
             "problemMatcher": []
         },
         {
@@ -75,9 +85,52 @@
             "group": "build",
             "detail": "全ての品質チェックを実行",
             "dependsOn": ["cmake_configure"]
+        },
+        {
+            "label": "build_cli11",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build", "--target", "cmd_cli11"],
+            "group": "build",
+            "detail": "CLI11版のみビルド",
+            "dependsOn": ["cmake_configure"]
+        },
+        {
+            "label": "build_morris_argparse",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "build", "--target", "cmd_argparse_morris"],
+            "group": "build",
+            "detail": "Morris argparse版のみビルド",
+            "dependsOn": ["cmake_configure"]
+        },
+        {
+            "label": "run_cli11_demo",
+            "type": "shell",
+            "command": "build/src/cmd_cli11",
+            "args": ["add", "5", "3"],
+            "group": "build",
+            "detail": "CLI11版でデモ実行",
+            "dependsOn": ["build_cli11"]
+        },
+        {
+            "label": "run_morris_demo",
+            "type": "shell",
+            "command": "build/src/cmd_argparse_morris",
+            "args": ["add", "--a", "5", "--b", "3"],
+            "group": "build",
+            "detail": "Morris argparse版でデモ実行",
+            "dependsOn": ["build_morris_argparse"]
         }
     ],
     "inputs": [
+        {
+            "id": "buildPreset",
+            "description": "ビルドプリセットを選択",
+            "type": "pickString",
+            "options": ["release", "debug", "relwithdebinfo"],
+            "default": "release"
+        },
         {
             "id": "buildType",
             "description": "ビルドタイプを選択",
