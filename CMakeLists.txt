@@ -159,3 +159,23 @@ include(cmake/quality-tools.cmake)
 setup_quality_tools()
 setup_quality_targets("${ALL_SOURCE_FILES}" "${COMPILABLE_SOURCE_FILES}")
 setup_quality_check_target()
+
+# ==============================================================================
+# Third-Party License Aggregation
+# ==============================================================================
+
+# サードパーティライブラリのライセンス集約
+add_custom_target(collect-licenses
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/third_party_licenses"
+
+    # Conanでインストールされたライブラリのライセンス
+    COMMAND ${CMAKE_COMMAND} -E echo "Collecting Conan package licenses..."
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/collect-conan-licenses.cmake
+
+    # FetchContentで取得したライブラリのライセンス
+    COMMAND ${CMAKE_COMMAND} -E echo "Collecting FetchContent package licenses..."
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/collect-fetchcontent-licenses.cmake
+
+    COMMENT "Collecting third-party library licenses"
+)
+
