@@ -11,9 +11,9 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Conan setup
-include(${CMAKE_BINARY_DIR}/generators/conan_toolchain.cmake OPTIONAL)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/generators)
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/generators)
+include(${CMAKE_BINARY_DIR}/generators/conan_toolchain.cmake OPTIONAL)
 
 # Default compiler preference (non-macOS: GCC preferred)
 if(NOT APPLE AND NOT DEFINED CMAKE_C_COMPILER AND NOT DEFINED CMAKE_CXX_COMPILER)
