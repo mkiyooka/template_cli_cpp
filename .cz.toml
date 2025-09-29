@@ -48,7 +48,6 @@ choices = [
   { value = "core", name = "core: コア機能" },
   { value = "config", name = "config: 設定管理" },
   { value = "cli", name = "cli: CLI機能" },
-  { value = "benchmark", name = "benchmark: ベンチマーク" },
 ]
 
 [[tool.commitizen.customize.questions]]
