@@ -202,3 +202,7 @@ generators/
 
 # Build directories
 debug/
+
+# Other files to ignore
+.DS_Store
+*.swp
