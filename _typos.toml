@@ -1,0 +1,11 @@
+[files]
+extend-exclude = [
+  "ext/",
+  "third_party/",
+  "build/",
+  "*.csv",
+]
+
+[default.extend-identifiers]
+
+[default.extend-words]

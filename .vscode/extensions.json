@@ -14,6 +14,7 @@
         "DavidAnson.vscode-markdownlint",
         "TakumiI.markdowntable",
         // 汎用拡張
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "tekumara.typos-vscode"
     ]
 }

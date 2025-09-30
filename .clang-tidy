@@ -9,6 +9,7 @@ Checks: >
     -cppcoreguidelines-avoid-c-arrays,
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-avoid-non-const-global-variables,
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
     google-*,
     google-explicit-constructor,
     -google-readability-todo,
