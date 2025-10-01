@@ -37,7 +37,7 @@ libgcc-devel_win-64 = "*"  # GCC development libraries
 # Main development tasks
 config = "cmake --preset=release"
 config-debug = "cmake --preset=debug"
-build = "cmake --build build -j"
+build = "cmake --build build -j 8"
 test = "ctest --test-dir build"
 clean = "cmake --build build --target clean"
 format = "cmake --build build --target format"
