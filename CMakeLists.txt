@@ -3,17 +3,12 @@
 # - project requirement: >= 3.19
 cmake_minimum_required(VERSION 3.19)
 
-# Set default build type before Conan setup
+# Set default build type
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting default build type to Release")
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-
-# Conan setup
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/generators)
-list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/generators)
-include(${CMAKE_BINARY_DIR}/generators/conan_toolchain.cmake OPTIONAL)
 
 # Default compiler preference (non-macOS: GCC preferred)
 if(NOT APPLE AND NOT DEFINED CMAKE_C_COMPILER AND NOT DEFINED CMAKE_CXX_COMPILER)
@@ -48,27 +43,51 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Enable プリコンパイルドヘッダー (optional, for faster compilation)
-option(USE_PCH "Use precompiled headers" ON)
+option(USE_PCH "Use precompiled headers" OFF)
 
 include_directories(include)
 
-# Conanで導入されるサードパーティライブラリの検索
-find_package(CLI11 REQUIRED)
-find_package(tomlplusplus REQUIRED)
-find_package(fmt REQUIRED)
-find_package(doctest REQUIRED)
-
 # FetchContentで導入するライブラリ
 include(FetchContent)
+include(cmake/local-or-fetch.cmake)
+
+# CLI11 - Command line parser
+declare_fetchcontent_with_local(CLI11 ext/CLI11-2.5.0
+    GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+    GIT_TAG v2.5.0
+)
+FetchContent_MakeAvailable(CLI11)
+
+# fmt - Formatting library
+declare_fetchcontent_with_local(fmt ext/fmt-11.2.0
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 11.2.0
+)
+FetchContent_MakeAvailable(fmt)
+
+# tomlplusplus - TOML configuration library
+declare_fetchcontent_with_local(tomlplusplus ext/tomlplusplus-3.4.0
+    GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+    GIT_TAG v3.4.0
+)
+FetchContent_MakeAvailable(tomlplusplus)
+
+# doctest - Testing framework
+set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
+declare_fetchcontent_with_local(doctest ext/doctest-2.4.11
+    GIT_REPOSITORY https://github.com/doctest/doctest.git
+    GIT_TAG v2.4.11
+)
+FetchContent_MakeAvailable(doctest)
 
 # argparse libraries (header-only)
 # morrisfranken/argparse - use header-only approach
-FetchContent_Declare(
-    argparse_morris
+declare_fetchcontent_with_local(argparse_morris ext/argparse_morris-master
     GIT_REPOSITORY https://github.com/morrisfranken/argparse.git
     GIT_TAG master
 )
-FetchContent_Populate(argparse_morris)
+FetchContent_MakeAvailable(argparse_morris)
 
 # Create interface library for morris version
 add_library(argparse_morris_target INTERFACE)
@@ -120,7 +139,6 @@ add_custom_target(show-help
     COMMAND ${CMAKE_COMMAND} -E echo "  run-tests             - Run all tests"
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Code quality targets:"
-    COMMAND ${CMAKE_COMMAND} -E echo "  fullcheck             - Run all quality checks"
     COMMAND ${CMAKE_COMMAND} -E echo "  format                - Format code with clang-format"
     COMMAND ${CMAKE_COMMAND} -E echo "  format-dry            - Check formatting without changes"
     COMMAND ${CMAKE_COMMAND} -E echo "  lint                  - Lint code with clang-tidy"
@@ -158,7 +176,6 @@ list(REMOVE_ITEM COMPILABLE_SOURCE_FILES ${EXT_FILES})
 include(cmake/quality-tools.cmake)
 setup_quality_tools()
 setup_quality_targets("${ALL_SOURCE_FILES}" "${COMPILABLE_SOURCE_FILES}")
-setup_quality_check_target()
 
 # ==============================================================================
 # Third-Party License Aggregation

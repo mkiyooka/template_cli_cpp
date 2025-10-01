@@ -1,8 +1,23 @@
 # Quality management tools configuration
 # Usage: include(cmake/quality-tools.cmake)
 
+# Tool runner configuration (pixi support)
+function(setup_tool_runner)
+    # Check if pixi is available and project has pixi.toml
+    find_program(PIXI_EXE NAMES pixi)
+    if(PIXI_EXE AND EXISTS "${CMAKE_SOURCE_DIR}/pixi.toml")
+        set(TOOL_RUNNER "${PIXI_EXE}" "run" PARENT_SCOPE)
+        message(STATUS "Using pixi for tool execution: ${PIXI_EXE}")
+    else()
+        set(TOOL_RUNNER "" PARENT_SCOPE)
+        message(STATUS "Using system tools directly (pixi not available or no pixi.toml)")
+    endif()
+endfunction()
+
 # Platform-specific quality tools search paths
 function(setup_quality_tools)
+    # Setup tool runner (pixi support)
+    setup_tool_runner()
     # clang-format search
     if(DEFINED CLANG_FORMAT_SEARCH_PATHS)
         string(REPLACE ";" ";" CLANG_FORMAT_PATHS "${CLANG_FORMAT_SEARCH_PATHS}")
@@ -113,17 +128,18 @@ function(setup_quality_tools)
     set(CLANG_FORMAT_EXE "${CLANG_FORMAT_EXE}" PARENT_SCOPE)
     set(CLANG_TIDY_EXE "${CLANG_TIDY_EXE}" PARENT_SCOPE)
     set(CPPCHECK_EXE "${CPPCHECK_EXE}" PARENT_SCOPE)
+    set(TOOL_RUNNER "${TOOL_RUNNER}" PARENT_SCOPE)
 endfunction()
 
 # Setup quality tools targets
 function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
     if(CLANG_FORMAT_EXE)
         add_custom_target(format
-            COMMAND ${CLANG_FORMAT_EXE} -i ${SOURCE_FILES}
+            COMMAND ${TOOL_RUNNER} clang-format -i ${SOURCE_FILES}
             COMMENT "Formatting source code with clang-format"
         )
         add_custom_target(format-dry
-            COMMAND ${CLANG_FORMAT_EXE} --dry-run --Werror ${SOURCE_FILES}
+            COMMAND ${TOOL_RUNNER} clang-format --dry-run --Werror ${SOURCE_FILES}
             COMMENT "Checking formatting (dry-run)"
         )
     else()
@@ -141,7 +157,7 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
         set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" PARENT_SCOPE)
 
         add_custom_target(lint
-            COMMAND ${CLANG_TIDY_EXE}
+            COMMAND ${TOOL_RUNNER} clang-tidy
                 -p ${CMAKE_BINARY_DIR}
                 --extra-arg=-nostdinc++
                 --extra-arg=-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1
@@ -181,21 +197,21 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
         endif()
         
         add_custom_target(run-cppcheck
-            COMMAND ${CPPCHECK_EXE}
+            COMMAND ${TOOL_RUNNER} cppcheck
                 ${CPPCHECK_BASE_ARGS}
                 ${SOURCE_FILES}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMENT "Running cppcheck static analysis"
             VERBATIM
         )
-        
+
         # cppcheck verbose ver.
         set(CPPCHECK_VERBOSE_ARGS ${CPPCHECK_BASE_ARGS})
         list(REMOVE_ITEM CPPCHECK_VERBOSE_ARGS "--quiet")
         list(APPEND CPPCHECK_VERBOSE_ARGS "--verbose")
-        
+
         add_custom_target(run-cppcheck-verbose
-            COMMAND ${CPPCHECK_EXE}
+            COMMAND ${TOOL_RUNNER} cppcheck
                 ${CPPCHECK_VERBOSE_ARGS}
                 ${SOURCE_FILES}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -214,31 +230,3 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
     endif()
 endfunction()
 
-# Setup integrated quality check target
-function(setup_quality_check_target)
-    # Create main check target
-    add_custom_target(fullcheck
-        COMMENT "Running all quality checks (format, lint, cppcheck)"
-    )
-    
-    # Add available quality targets as dependencies
-    if(TARGET format)
-        add_dependencies(fullcheck format)
-        message(STATUS "  Added 'format' to fullcheck target")
-    endif()
-    
-    if(TARGET lint)
-        add_dependencies(fullcheck lint)
-        message(STATUS "  Added 'lint' to fullcheck target")
-    endif()
-    
-    if(TARGET run-cppcheck)
-        add_dependencies(fullcheck run-cppcheck)
-        message(STATUS "  Added 'run-cppcheck' to fullcheck target")
-    endif()
-    
-    
-    message(STATUS "Quality fullcheck target 'fullcheck' configured")
-    message(STATUS "  Usage: cmake --build build --target fullcheck")
-    message(STATUS "  Available targets: format, lint, run-cppcheck, fullcheck")
-endfunction()
