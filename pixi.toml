@@ -6,32 +6,27 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
 [dependencies]
-# C++ Compiler and Tools (Cross-platform)
 # C++17 minimum requirement: clang >= 5.0, gcc >= 7.0, MSVC >= 19.14 (VS2017)
 clang = "==21.1.1"  # Latest stable version - available on all platforms
 clang-tools = "==21.1.1"  # Includes: clang-tidy, clang-format, clangd
 cppcheck = "==2.18.3"  # Static analysis tool
-# Build Tools
 cmake = "==4.1.1"  # Build system generator
 ninja = "==1.13.1"  # Build system
 typos = ">=1.36.3,<2"
 
-# Linux-specific dependencies (GCC toolchain)
 [target.linux-64.dependencies]
-gcc = "*"  # GCC compiler
-gxx = "*"  # G++ compiler
-libgcc-ng = "*"  # GCC runtime library
-libstdcxx-ng = "*"  # C++ standard library
+gcc = "==15.1.0"  # GCC compiler
+gxx = "==15.1.0"  # G++ compiler
+libgcc-ng = "==15.1.0"  # GCC runtime library
+libstdcxx-ng = "==15.1.0"  # C++ standard library
 
-# Windows-specific dependencies (GCC/Clang toolchain)
 [target.win-64.dependencies]
-# Cross-compilation toolchain for Windows
-clang_win-64 = "*"  # Clang cross-compiler for Windows
-clangxx_win-64 = "*"  # Clang++ cross-compiler for Windows
+clang_win-64 = "==21.1"  # Clang cross-compiler for Windows
+clangxx_win-64 = "==21.1"  # Clang++ cross-compiler for Windows
 # MSYS2/MinGW related packages
-m2w64-sysroot_win-64 = "*"  # System root for MinGW-w64
-m2-gcc-libs = "*"  # GCC runtime libraries
-libgcc-devel_win-64 = "*"  # GCC development libraries
+m2w64-sysroot_win-64 = "==12.0.0.r4.gg4f2fc60ca"  # System root for MinGW-w64
+m2-gcc-libs = "==13.3.0.1"  # GCC runtime libraries
+libgcc-devel_win-64 = "==15.1.0"  # GCC development libraries
 
 [tasks]
 # Main development tasks
