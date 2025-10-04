@@ -1,6 +1,13 @@
-# C++ Template CLI
+# C++ CLI Library Examples
 
-C++のCLIライブラリの使用例を集めたテンプレートプロジェクトです。CMake FetchContentを使用してライブラリを管理しています。
+C++のCLIライブラリの使用例を集めたサンプルコード集です。CMake FetchContentを使用してライブラリを管理しています。
+
+## プロジェクト構成
+
+- **ビルドシステム**: CMake 3.19 + Ninja
+- **環境管理**: Pixi (クロスプラットフォーム対応)
+- **テストフレームワーク**: doctest
+- **C++標準**: C++17
 
 ## 導入ライブラリ
 
@@ -49,9 +56,16 @@ pixi run lint
 pixi run fullcheck
 ```
 
-## ディレクトリ構造
+## ディレクトリ構成
 
-- `src/`: メインアプリケーション
+- `src/`: サンプルアプリケーション
 - `include/`: ヘッダーファイル
-- `tests/cpp/`: テストコード
-- `config_example/`: 設定ファイルサンプル
+- `tests/`: テストコード
+- `cmake/`: CMake設定ファイル
+    - `local-or-fetch.cmake`: FetchContentヘルパー
+    - `dependencies-app.cmake`: アプリ用ライブラリ
+    - `dependencies-test.cmake`: テスト用ライブラリ
+    - `custom-targets.cmake`: カスタムターゲット
+    - `quality-setup.cmake`: コード品質設定
+    - `quality-tools.cmake`: コード品質ツール
+- `third_party/`: サードパーティライブラリ (FetchContentでダウンロード)
