@@ -1,4 +1,0 @@
-# for direnv 
-[ -f .venv/Scripts/activate ] && source .venv/Scripts/activate
-[ -f .venv/bin/activate ] && source .venv/bin/activate
-export UV_NATIVE_TLS=true

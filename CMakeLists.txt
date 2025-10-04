@@ -42,8 +42,19 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Enable プリコンパイルドヘッダー (optional, for faster compilation)
+# コンパイルの高速化
+set(CMAKE_CXX_COMPILER_LAUNCHER sccache)
 option(USE_PCH "Use precompiled headers" OFF)
+# リンカ変更
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(STATUS "Using GCC: enabling lld")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message(STATUS "Using Clang: enabling lld")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
+endif()
 
 include_directories(include)
 
