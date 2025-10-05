@@ -13,7 +13,7 @@ int CliArgparseMorris(int argc, char *argv[]) {
         auto args = argparse::parse<ArgparseMorrisArgs>(argc, argv);
 
         // サブコマンドを実行
-        int result = args.run_subcommands();
+        const int result = args.run_subcommands();
 
         // 設定ファイルの読み込みと表示
         Config conf;

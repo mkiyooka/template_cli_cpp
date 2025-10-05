@@ -1,7 +1,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
-#include <doctest/doctest.h>
 #include <vector>
+
+#include <doctest/doctest.h>
 
 #include "sut_example/system_under_test.hpp"
 
@@ -34,7 +35,7 @@ TEST_CASE("Vector comparison tests") {
 // 簡単なクラスのテスト
 TEST_CASE("ModuloCalculator class") {
     SUBCASE("modulo operations") {
-        sut_example::ModuloCalculator calc(7);
+        const sut_example::ModuloCalculator calc(7);
         CHECK(calc.GetRemainder(15) == 1);
         CHECK(calc.GetRemainder(14) == 0);
         CHECK(calc.GetRemainder(6) == 6);

@@ -1,5 +1,6 @@
-#include <iostream>
 #include <fmt/base.h>
+
+#include <iostream>
 
 #include "command/subcommand_argparse_morris.hpp"
 
