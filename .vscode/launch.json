@@ -130,7 +130,7 @@
             "name": "Debug test_sut_example",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/tests/cpp/test_sut_example",
+            "program": "${workspaceFolder}/build/tests/test_sut_example",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

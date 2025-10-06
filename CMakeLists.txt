@@ -43,7 +43,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # コンパイルの高速化
-set(CMAKE_CXX_COMPILER_LAUNCHER sccache)
+# set(CMAKE_CXX_COMPILER_LAUNCHER sccache)
 option(USE_PCH "Use precompiled headers" OFF)
 # リンカ変更
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -89,7 +89,7 @@ endif()
 # Enable testing for CTest
 enable_testing()
 
-add_subdirectory(tests/cpp)
+add_subdirectory(tests)
 
 # カスタムターゲット
 include(cmake/custom-targets.cmake)
