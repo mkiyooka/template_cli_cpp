@@ -3,9 +3,9 @@
 # doctest - Testing framework
 set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "" FORCE)
-declare_fetchcontent_with_local(doctest ext/doctest-2.4.11
-    GIT_REPOSITORY https://github.com/doctest/doctest.git
-    GIT_TAG v2.4.11
+add_external_package(doctest ext/doctest-2.4.12
+    URL https://github.com/doctest/doctest/archive/refs/tags/v2.4.12.tar.gz
+    URL_HASH SHA256=73381c7aa4dee704bd935609668cf41880ea7f19fa0504a200e13b74999c2d70
 )
 FetchContent_MakeAvailable(doctest)
 
