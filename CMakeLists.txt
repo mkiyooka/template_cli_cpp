@@ -43,7 +43,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # コンパイルの高速化
-# set(CMAKE_CXX_COMPILER_LAUNCHER sccache)
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+    message(STATUS "Using ccache: ${CCACHE_PROGRAM}")
+else()
+    message(STATUS "ccache not found, building without cache")
+endif()
 option(USE_PCH "Use precompiled headers" OFF)
 # リンカ変更
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
