@@ -35,12 +35,12 @@ pixi run test
 
 ```bash
 # CLI11版
-./build/src/cmd_cli11 add 10 20        # 10 + 20 = 30
-./build/src/cmd_cli11 subtract 15 5    # 15 - 5 = 10
+./build/cmd_cli11 add 10 20        # 10 + 20 = 30
+./build/cmd_cli11 subtract 15 5    # 15 - 5 = 10
 
 # Morris argparse版
-./build/src/cmd_argparse_morris add --a 10 --b 20        # 10 + 20 = 30
-./build/src/cmd_argparse_morris subtract --a 15 --b 5    # 15 - 5 = 10
+./build/cmd_argparse_morris add --a 10 --b 20        # 10 + 20 = 30
+./build/cmd_argparse_morris subtract --a 15 --b 5    # 15 - 5 = 10
 ```
 
 ## 開発ツール

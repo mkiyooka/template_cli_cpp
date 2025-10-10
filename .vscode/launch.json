@@ -5,7 +5,7 @@
             "name": "Debug CLI11 (add)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd_cli11",
+            "program": "${workspaceFolder}/build/cmd_cli11",
             "args": [
                 "add",
                 "10",
@@ -30,7 +30,7 @@
             "name": "Debug CLI11 (multiply)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd_cli11",
+            "program": "${workspaceFolder}/build/cmd_cli11",
             "args": [
                 "multiply",
                 "5",
@@ -55,7 +55,7 @@
             "name": "Debug Morris argparse (add)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd_argparse_morris",
+            "program": "${workspaceFolder}/build/cmd_argparse_morris",
             "args": [
                 "add",
                 "--a",
@@ -82,7 +82,7 @@
             "name": "Debug CLI11 (with config)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd_cli11",
+            "program": "${workspaceFolder}/build/cmd_cli11",
             "args": [
                 "--config",
                 "config/example.toml",
@@ -109,7 +109,7 @@
             "name": "Debug CLI11 (custom args)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/cmd_cli11",
+            "program": "${workspaceFolder}/build/cmd_cli11",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

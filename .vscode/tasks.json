@@ -107,7 +107,7 @@
         {
             "label": "run_cli11_demo",
             "type": "shell",
-            "command": "build/src/cmd_cli11",
+            "command": "build/cmd_cli11",
             "args": ["add", "5", "3"],
             "group": "build",
             "detail": "CLI11版でデモ実行",
@@ -116,7 +116,7 @@
         {
             "label": "run_morris_demo",
             "type": "shell",
-            "command": "build/src/cmd_argparse_morris",
+            "command": "build/cmd_argparse_morris",
             "args": ["add", "--a", "5", "--b", "3"],
             "group": "build",
             "detail": "Morris argparse版でデモ実行",
