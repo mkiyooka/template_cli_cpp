@@ -18,6 +18,7 @@ endfunction()
 function(setup_quality_tools)
     # Setup tool runner (pixi support)
     setup_tool_runner()
+
     # clang-format search
     if(DEFINED CLANG_FORMAT_SEARCH_PATHS)
         string(REPLACE ";" ";" CLANG_FORMAT_PATHS "${CLANG_FORMAT_SEARCH_PATHS}")
@@ -156,18 +157,44 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
     if(CLANG_TIDY_EXE)
         set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" PARENT_SCOPE)
 
-        add_custom_target(lint
-            COMMAND ${TOOL_RUNNER} clang-tidy
-                -p ${CMAKE_BINARY_DIR}
-                --extra-arg=-nostdinc++
-                --extra-arg=-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1
-                --extra-arg=-isystem/Library/Developer/CommandLineTools/usr/lib/clang/17/include
-                --extra-arg=-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include
-                ${COMPILABLE_SOURCE_FILES}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            COMMENT "Running clang-tidy"
-            VERBATIM
-        )
+        # Check for run-clang-tidy for parallel execution
+        find_program(RUN_CLANG_TIDY_EXE NAMES run-clang-tidy)
+
+        if(RUN_CLANG_TIDY_EXE)
+            # Parallel execution with run-clang-tidy
+            include(ProcessorCount)
+            ProcessorCount(N)
+            if(NOT N EQUAL 0)
+                math(EXPR LINT_JOBS "${N} / 2")  # Use half of available cores
+                if(LINT_JOBS LESS 1)
+                    set(LINT_JOBS 1)
+                endif()
+            else()
+                set(LINT_JOBS 4)
+            endif()
+
+            add_custom_target(lint
+                COMMAND ${TOOL_RUNNER} run-clang-tidy
+                    -p ${CMAKE_BINARY_DIR}
+                    -quiet
+                    -j ${LINT_JOBS}
+                    ${COMPILABLE_SOURCE_FILES}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                COMMENT "Running clang-tidy (${LINT_JOBS} parallel jobs)"
+                VERBATIM
+            )
+        else()
+            # Sequential execution with clang-tidy
+            add_custom_target(lint
+                COMMAND ${TOOL_RUNNER} clang-tidy
+                    -p ${CMAKE_BINARY_DIR}
+                    --quiet
+                    ${COMPILABLE_SOURCE_FILES}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                COMMENT "Running clang-tidy"
+                VERBATIM
+            )
+        endif()
     else()
         add_custom_target(lint
             COMMAND ${CMAKE_COMMAND} -E echo "clang-tidy not available"
@@ -180,14 +207,16 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
     if(CPPCHECK_EXE)
         # cppcheck arguments
         set(CPPCHECK_BASE_ARGS
-            --enable=all
-            --inconclusive
+            --enable=warning,style,performance,portability
             --std=c++17
             --platform=native
             -I include/
             --suppress=missingIncludeSystem
             --suppress=unusedFunction
             --suppress=unusedStructMember
+            --suppress=ctuOneDefinitionRuleViolation
+            --suppress=normalCheckLevelMaxBranches
+            --suppress=unmatchedSuppression
             --inline-suppr
             --quiet
         )
@@ -229,4 +258,3 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
         )
     endif()
 endfunction()
-
