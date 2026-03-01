@@ -30,12 +30,6 @@ libgcc-ng = "==15.1.0"  # GCC runtime library
 libstdcxx-ng = "==15.1.0"  # C++ standard library
 valgrind = "==3.26.0"
 
-[target.osx-64.dependencies]
-mold = "==2.40.4"
-
-[target.osx-arm64.dependencies]
-mold = "==2.40.4"
-
 [target.win-64.dependencies]
 clang_win-64 = "==21.1"  # Clang cross-compiler for Windows
 clangxx_win-64 = "==21.1"  # Clang++ cross-compiler for Windows
