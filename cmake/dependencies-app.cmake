@@ -46,14 +46,3 @@ FetchContent_MakeAvailable(fkYAML)
 add_library(fkYAML_target INTERFACE)
 target_include_directories(fkYAML_target INTERFACE ${fkYAML_SOURCE_DIR}/include)
 
-# argparse libraries (header-only)
-# morrisfranken/argparse - use header-only approach
-add_external_package(argparse_morris third_party/argparse_morris-master
-    GIT_REPOSITORY https://github.com/morrisfranken/argparse.git
-    GIT_TAG master
-)
-FetchContent_MakeAvailable(argparse_morris)
-
-# Create interface library for morris version
-add_library(argparse_morris_target INTERFACE)
-target_include_directories(argparse_morris_target INTERFACE ${argparse_morris_SOURCE_DIR}/include)
