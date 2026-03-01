@@ -75,11 +75,14 @@ Config ConfigManager::Resolve(const std::string &explicit_config_path) {
 }
 
 void ShowConfig(const Config &conf) {
-    if (!conf.title.empty() && conf.title != "title") {
-        fmt::print("title: {}, value: {}\n", conf.title, conf.value);
-        for (const auto &p : conf.plugins) {
-            fmt::print("  plugin: file={}, number={}\n", p.file, p.number);
-        }
+    std::apply(
+        [&](auto &&...field) {
+            ([&] { fmt::print("{}: {}\n", field.config_key, conf.*field.member); }(), ...);
+        },
+        kConfigSchema
+    );
+    for (const auto &p : conf.plugins) {
+        fmt::print("plugin: file={}, number={}\n", p.file, p.number);
     }
 }
 
