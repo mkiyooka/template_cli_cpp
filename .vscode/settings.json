@@ -1,28 +1,10 @@
 {
-    /* Python file settings */
-    "[python]": {
-        "editor.rulers": [80],
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "charliermarsh.ruff",
-        "editor.codeActionsOnSave": {
-            "source.fixAll": "explicit",
-            "source.organizeImports": "explicit"
-        }
+    /* C/C++ file settings */
+    "[c]": {
+        "editor.rulers": [120],
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true
     },
-    /* Ruff for python */
-    "ruff.lint.enable": true,
-    "ruff.importStrategy": "fromEnvironment",
-    /* Python testing configuration */
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "python.testing.autoTestDiscoverOnSaveEnabled": true,
-    /* Python path configuration */
-    "python.terminal.activateEnvironment": true,
-    "python.terminal.executeInFileDir": false,
-    /* Python environment for testing */
-    "python.experiments.optInto": ["pythonTestAdapter"],
-
-    /* C++ file settings */
     "[cpp]": {
         "editor.rulers": [120],
         "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
@@ -31,7 +13,16 @@
     "C_Cpp.formatting": "disabled", // use clangd
     "C_Cpp.intelliSenseEngine": "disabled", // use clangd
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+
+    /* CMake settings */
     "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.environment": {
+        "PATH": "${env:HOME}/.pixi/bin:${env:PATH}"
+    },
+    "cmake.automaticReconfigure": false,
+    "cmake.configureOnOpen": false,
+    "cmake.configureOnEdit": false,
+
     "c-cpp-flylint.clang.enable": false,
     "c-cpp-flylint.cppcheck.suppressions": [
         "missingIncludeSystem",
@@ -104,6 +95,8 @@
         "**/.ruff_cache": true,
         "**/.pytest_cache": true,
         "**/__pycache__": true,
+        "**/third_party": true,
+        "**/external": true,
         "**/ext": true,
         // C++ build artifacts
         "**/.pixi": true,
@@ -120,6 +113,8 @@
         "**/.ruff_cache": true,
         "**/.pytest_cache": true,
         "**/__pycache__": true,
+        "**/third_party": true,
+        "**/external": true,
         "**/ext": true,
         // C++ build artifacts
         "**/.pixi": true,
