@@ -28,6 +28,24 @@ add_external_package(tomlplusplus third_party/tomlplusplus-3.4.0
 )
 FetchContent_MakeAvailable(tomlplusplus)
 
+# nlohmann/json - JSON/JSONC parser
+add_external_package(nlohmann_json third_party/nlohmann_json-3.12.0
+    URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
+    URL_HASH SHA256=42f6e95cad6ec532fd372391373363b62a14af6d771056dbfc86160e6dfff7aa
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
+# fkYAML - YAML parser (header-only)
+add_external_package(fkYAML third_party/fkYAML-0.4.2
+    URL https://github.com/fktn-k/fkYAML/releases/download/v0.4.2/fkYAML.tgz
+    URL_HASH SHA256=6fbdbd94094b467ea37a64ccfe042588353feda097b1a5348f8cd12b914ad2cd
+)
+FetchContent_MakeAvailable(fkYAML)
+
+# Create interface library for fkYAML (header-only)
+add_library(fkYAML_target INTERFACE)
+target_include_directories(fkYAML_target INTERFACE ${fkYAML_SOURCE_DIR}/include)
+
 # argparse libraries (header-only)
 # morrisfranken/argparse - use header-only approach
 add_external_package(argparse_morris third_party/argparse_morris-master

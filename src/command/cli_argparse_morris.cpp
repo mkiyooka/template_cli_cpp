@@ -1,11 +1,11 @@
+#include <exception>
 #include <iostream>
-#include <stdexcept>
 
 #include <fmt/base.h>
 
 #include "command/cli_argparse_morris.hpp"
 #include "command/subcommand_argparse_morris.hpp"
-#include "config/config_loader.hpp"
+#include "config/config_manager.hpp"
 
 int CliArgparseMorris(int argc, char *argv[]) {
     try {
@@ -15,10 +15,10 @@ int CliArgparseMorris(int argc, char *argv[]) {
         // サブコマンドを実行
         const int result = args.run_subcommands();
 
-        // 設定ファイルの読み込みと表示
-        Config conf;
-        LoadConfig(args.config_file, conf);
-        ShowConfig(conf);
+        // 設定の解決と表示
+        config::ConfigManager mgr;
+        const Config conf = mgr.Resolve(args.config_file);
+        config::ShowConfig(conf);
 
         return result;
     } catch (const std::exception &e) {

@@ -3,9 +3,7 @@
 namespace sut_example {
 
 // シンプルな数学関数の実装（double型比較のサンプル用）
-double DoubleValue(double input) {
-    return input * 2.0;
-}
+double DoubleValue(double input) { return input * 2.0; }
 
 // vector型比較のサンプル用関数
 std::vector<int> CreateSequence(int start, int count) {
@@ -18,10 +16,9 @@ std::vector<int> CreateSequence(int start, int count) {
 }
 
 // ModuloCalculator クラスの実装
-ModuloCalculator::ModuloCalculator(int divisor) : divisor_(divisor) {}
+ModuloCalculator::ModuloCalculator(int divisor)
+    : divisor_(divisor) {}
 
-int ModuloCalculator::GetRemainder(int value) const {
-    return value % divisor_;
-}
+int ModuloCalculator::GetRemainder(int value) const { return value % divisor_; }
 
 } // namespace sut_example

@@ -1,0 +1,13 @@
+// Example JSONC Configuration
+{
+    "title": "Example JSONC Configuration",
+    "settings": {
+        // Numeric value
+        "value": 42
+    },
+    "plugin": [
+        { "file": "fileA.json", "number": 10 },
+        { "file": "fileB.json", "number": 15 },
+        { "file": "fileC.json", "number": 20 }
+    ]
+}

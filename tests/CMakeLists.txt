@@ -1,3 +1,14 @@
+# Config manager test
+add_executable(test_config_manager
+    test_config_manager.cpp
+)
+target_include_directories(test_config_manager PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(test_config_manager PRIVATE config_lib CLI11::CLI11 doctest::doctest)
+add_test(
+    NAME test_config_manager
+    COMMAND $<TARGET_FILE:test_config_manager>
+)
+
 # SUT example library
 add_library(sut_example_lib STATIC
     ${PROJECT_SOURCE_DIR}/src/sut_example/system_under_test.cpp

@@ -1,0 +1,10 @@
+title: "Example YAML Configuration"
+settings:
+  value: 42
+plugin:
+  - file: fileA.yaml
+    number: 10
+  - file: fileB.yaml
+    number: 15
+  - file: fileC.yaml
+    number: 20
