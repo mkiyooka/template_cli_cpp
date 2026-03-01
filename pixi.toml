@@ -20,13 +20,21 @@ cppcheck = "==2.18.3"  # Static analysis tool
 cmake = "==4.1.1"  # Build system generator
 ninja = "==1.13.1"  # Build system
 typos = ">=1.36.3,<2"  # Spell checker
-ccache = ">=4.10.2,<5"  # C/C++ compiler cache
+ccache = ">=4.10.0,<5"  # C/C++ compiler cache
 
 [target.linux-64.dependencies]
 gcc = "==15.1.0"  # GCC compiler
 gxx = "==15.1.0"  # G++ compiler
+mold = "==2.40.4"
 libgcc-ng = "==15.1.0"  # GCC runtime library
 libstdcxx-ng = "==15.1.0"  # C++ standard library
+valgrind = "==3.26.0"
+
+[target.osx-64.dependencies]
+mold = "==2.40.4"
+
+[target.osx-arm64.dependencies]
+mold = "==2.40.4"
 
 [target.win-64.dependencies]
 clang_win-64 = "==21.1"  # Clang cross-compiler for Windows
