@@ -1,146 +1,56 @@
 # Quality management tools configuration
 # Usage: include(cmake/quality-tools.cmake)
 
-# Tool runner configuration (pixi support)
-function(setup_tool_runner)
-    # Check if pixi is available and project has pixi.toml
-    find_program(PIXI_EXE NAMES pixi)
-    if(PIXI_EXE AND EXISTS "${CMAKE_SOURCE_DIR}/pixi.toml")
-        set(TOOL_RUNNER "${PIXI_EXE}" "run" PARENT_SCOPE)
-        message(STATUS "Using pixi for tool execution: ${PIXI_EXE}")
-    else()
-        set(TOOL_RUNNER "" PARENT_SCOPE)
-        message(STATUS "Using system tools directly (pixi not available or no pixi.toml)")
-    endif()
-endfunction()
-
-# Platform-specific quality tools search paths
+# Quality tools search paths
+# pixi run 経由で実行する場合、pixi環境のbinがPATHに含まれているため
+# 通常のfind_programでpixi環境のツールが優先的に発見される。
+# ただし、find_programはキャッシュするため2回目以降の実行では最初の結果が使われる。
+# キャッシュをリセットしたい場合は build ディレクトリを削除して再設定すること。
 function(setup_quality_tools)
-    # Setup tool runner (pixi support)
-    setup_tool_runner()
+    # clang-format
+    find_program(CLANG_FORMAT_EXE NAMES clang-format)
 
-    # clang-format search
-    if(DEFINED CLANG_FORMAT_SEARCH_PATHS)
-        string(REPLACE ";" ";" CLANG_FORMAT_PATHS "${CLANG_FORMAT_SEARCH_PATHS}")
-        find_program(CLANG_FORMAT_EXE 
-            NAMES clang-format
-            PATHS ${CLANG_FORMAT_PATHS}
-            NO_DEFAULT_PATH
-        )
-    else()
-        # Platform-specific default search
-        if(APPLE)
-            # macOS: Homebrew paths
-            set(DEFAULT_CLANG_FORMAT_PATHS
-                "/opt/homebrew/bin"
-                "/opt/homebrew/opt/llvm/bin"
-                "/opt/homebrew/opt/llvm@*/bin"
-            )
-        elseif(UNIX)
-            # Linux: Package manager and manual install paths
-            set(DEFAULT_CLANG_FORMAT_PATHS
-                "/usr/bin"
-                "/usr/local/bin"
-                "/usr/lib/llvm-*/bin"                        # Ubuntu/Debian
-                "/opt/rh/llvm-toolset-*/root/usr/bin"        # RHEL SCL
-            )
-        endif()
-        
-        if(DEFINED DEFAULT_CLANG_FORMAT_PATHS)
-            find_program(CLANG_FORMAT_EXE 
-                NAMES clang-format
-                PATHS ${DEFAULT_CLANG_FORMAT_PATHS}
-                NO_DEFAULT_PATH
-            )
-        endif()
-        
-        # Fallback to system PATH
-        if(NOT CLANG_FORMAT_EXE)
-            find_program(CLANG_FORMAT_EXE NAMES clang-format)
-        endif()
-    endif()
+    # clang-tidy
+    find_program(CLANG_TIDY_EXE NAMES clang-tidy)
 
-    # clang-tidy search  
-    if(DEFINED CLANG_TIDY_SEARCH_PATHS)
-        string(REPLACE ";" ";" CLANG_TIDY_PATHS "${CLANG_TIDY_SEARCH_PATHS}")
-        find_program(CLANG_TIDY_EXE 
-            NAMES clang-tidy
-            PATHS ${CLANG_TIDY_PATHS}
-            NO_DEFAULT_PATH
-        )
-    else()
-        # Platform-specific default search
-        if(APPLE)
-            # macOS: Homebrew LLVM only (not in /opt/homebrew/bin)
-            set(DEFAULT_CLANG_TIDY_PATHS
-                "/opt/homebrew/opt/llvm/bin"
-                "/opt/homebrew/opt/llvm@*/bin"
-            )
-        elseif(UNIX)
-            # Linux: LLVM-specific paths preferred
-            set(DEFAULT_CLANG_TIDY_PATHS
-                "/usr/lib/llvm-*/bin"                        # Ubuntu/Debian  
-                "/opt/rh/llvm-toolset-*/root/usr/bin"        # RHEL SCL
-                "/usr/bin"                                   # System fallback
-                "/usr/local/bin"                             # Manual install
-            )
-        endif()
-        
-        if(DEFINED DEFAULT_CLANG_TIDY_PATHS)
-            find_program(CLANG_TIDY_EXE 
-                NAMES clang-tidy
-                PATHS ${DEFAULT_CLANG_TIDY_PATHS}
-                NO_DEFAULT_PATH
-            )
-        endif()
-        
-        # Fallback to system PATH
-        if(NOT CLANG_TIDY_EXE)
-            find_program(CLANG_TIDY_EXE NAMES clang-tidy)
-        endif()
-    endif()
-
-
-    # cppcheck search
+    # cppcheck
     find_program(CPPCHECK_EXE NAMES cppcheck)
-    
+
     # Display found tools
-    message(STATUS "Quality tools configuration:")
+    message(STATUS "Quality tools:")
     if(CLANG_FORMAT_EXE)
-        message(STATUS  "  clang-format: ${CLANG_FORMAT_EXE}")
+        message(STATUS "  clang-format : ${CLANG_FORMAT_EXE}")
     else()
-        message(WARNING "  clang-format: NOT FOUND")
+        message(WARNING "  clang-format : NOT FOUND")
     endif()
-    
+
     if(CLANG_TIDY_EXE)
-        message(STATUS  "  clang-tidy: ${CLANG_TIDY_EXE}")
+        message(STATUS "  clang-tidy   : ${CLANG_TIDY_EXE}")
     else()
-        message(WARNING "  clang-tidy: NOT FOUND")
+        message(WARNING "  clang-tidy   : NOT FOUND")
     endif()
-    
-    
+
     if(CPPCHECK_EXE)
-        message(STATUS  "  cppcheck: ${CPPCHECK_EXE}")
+        message(STATUS "  cppcheck     : ${CPPCHECK_EXE}")
     else()
-        message(WARNING "  cppcheck: NOT FOUND")
+        message(WARNING "  cppcheck     : NOT FOUND")
     endif()
-    
+
     # Set variables for parent scope
     set(CLANG_FORMAT_EXE "${CLANG_FORMAT_EXE}" PARENT_SCOPE)
     set(CLANG_TIDY_EXE "${CLANG_TIDY_EXE}" PARENT_SCOPE)
     set(CPPCHECK_EXE "${CPPCHECK_EXE}" PARENT_SCOPE)
-    set(TOOL_RUNNER "${TOOL_RUNNER}" PARENT_SCOPE)
 endfunction()
 
 # Setup quality tools targets
 function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
     if(CLANG_FORMAT_EXE)
         add_custom_target(format
-            COMMAND ${TOOL_RUNNER} clang-format -i ${SOURCE_FILES}
+            COMMAND ${CLANG_FORMAT_EXE} -i ${SOURCE_FILES}
             COMMENT "Formatting source code with clang-format"
         )
         add_custom_target(format-dry
-            COMMAND ${TOOL_RUNNER} clang-format --dry-run --Werror ${SOURCE_FILES}
+            COMMAND ${CLANG_FORMAT_EXE} --dry-run --Werror ${SOURCE_FILES}
             COMMENT "Checking formatting (dry-run)"
         )
     else()
@@ -174,7 +84,7 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
             endif()
 
             add_custom_target(lint
-                COMMAND ${TOOL_RUNNER} run-clang-tidy
+                COMMAND ${RUN_CLANG_TIDY_EXE}
                     -p ${CMAKE_BINARY_DIR}
                     -quiet
                     -j ${LINT_JOBS}
@@ -186,7 +96,7 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
         else()
             # Sequential execution with clang-tidy
             add_custom_target(lint
-                COMMAND ${TOOL_RUNNER} clang-tidy
+                COMMAND ${CLANG_TIDY_EXE}
                     -p ${CMAKE_BINARY_DIR}
                     --quiet
                     ${COMPILABLE_SOURCE_FILES}
@@ -201,7 +111,6 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
             COMMENT "clang-tidy not found - skipping lint"
         )
     endif()
-
 
     # cppcheck targets
     if(CPPCHECK_EXE)
@@ -224,9 +133,9 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
             string(REPLACE " " ";" CPPCHECK_EXTRA_ARGS "${CPPCHECK_ADDITIONAL_ARGS}")
             list(APPEND CPPCHECK_BASE_ARGS ${CPPCHECK_EXTRA_ARGS})
         endif()
-        
+
         add_custom_target(run-cppcheck
-            COMMAND ${TOOL_RUNNER} cppcheck
+            COMMAND ${CPPCHECK_EXE}
                 ${CPPCHECK_BASE_ARGS}
                 ${SOURCE_FILES}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -240,7 +149,7 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
         list(APPEND CPPCHECK_VERBOSE_ARGS "--verbose")
 
         add_custom_target(run-cppcheck-verbose
-            COMMAND ${TOOL_RUNNER} cppcheck
+            COMMAND ${CPPCHECK_EXE}
                 ${CPPCHECK_VERBOSE_ARGS}
                 ${SOURCE_FILES}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

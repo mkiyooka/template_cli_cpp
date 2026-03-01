@@ -3,29 +3,87 @@
 # - project requirement: >= 3.19
 cmake_minimum_required(VERSION 3.19)
 
-# Set default build type
+# Set default build type（project()より前に設定する必要がある）
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting default build type to Release")
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# Default compiler preference (non-macOS: GCC preferred)
-if(NOT APPLE AND NOT DEFINED CMAKE_C_COMPILER AND NOT DEFINED CMAKE_CXX_COMPILER)
-    find_program(GCC_C_COMPILER NAMES gcc cc)
-    find_program(GCC_CXX_COMPILER NAMES g++ c++)
-    if(GCC_C_COMPILER AND GCC_CXX_COMPILER)
-        set(CMAKE_C_COMPILER "${GCC_C_COMPILER}" CACHE FILEPATH "C compiler" FORCE)
-        set(CMAKE_CXX_COMPILER "${GCC_CXX_COMPILER}" CACHE FILEPATH "C++ compiler" FORCE)
-        message(STATUS "Using GCC toolchain: ${GCC_C_COMPILER}, ${GCC_CXX_COMPILER}")
-    endif()
-endif()
-set(CMAKE_POSITION_INDEPENDENT_CODE ON) # Enable position-independent code. add "-fPIC"
-
 project(template_cli_cpp
     VERSION 0.1.0
     LANGUAGES CXX C
 )
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # Enable position-independent code. add "-fPIC"
+
+# --- コンパイラの確認 ---
+# コンパイラは project() 呼び出し時に確定する。
+# pixi run 経由で実行する場合は pixi がPATHをセットしてからCMakeを起動するため、
+# pixi環境のコンパイラが自動的に検出される。
+message(STATUS "C   compiler : ${CMAKE_C_COMPILER} (${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION})")
+message(STATUS "C++ compiler : ${CMAKE_CXX_COMPILER} (${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION})")
+
+# --- ccache ---
+# pixi run 経由ではpixi環境のccacheがPATHに含まれるため NO_DEFAULT_PATH は使わない
+find_program(CCACHE_EXE NAMES ccache)
+if(CCACHE_EXE)
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_EXE}")
+    set(CMAKE_C_COMPILER_LAUNCHER   "${CCACHE_EXE}")
+    message(STATUS "ccache        : ${CCACHE_EXE}")
+else()
+    message(STATUS "ccache        : not found")
+endif()
+option(USE_PCH "Use precompiled headers" OFF)
+
+# --- リンカー選択 ---
+set(LINKER "auto" CACHE STRING "Linker to use (auto/mold/lld/bfd/default)")
+set_property(CACHE LINKER PROPERTY STRINGS auto mold lld bfd default)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    if (LINKER STREQUAL "auto")
+        set(_candidates mold lld)
+    elseif(LINKER STREQUAL "default")
+        set(_candidates "")
+    else()
+        set(_candidates ${LINKER})
+    endif()
+
+    set(_linker_found FALSE)
+    foreach(linker IN LISTS _candidates)
+        if (linker STREQUAL "bfd")
+            message(STATUS "linker        : bfd (system default)")
+            set(_linker_found TRUE)
+            break()
+        endif()
+
+        # pixi run 経由ではPATHにpixi環境のbinが含まれているため通常のfind_programで発見できる
+        # mold: "mold", lld: "lld"（macOSではld.moldやld.lldは存在しない場合がある）
+        find_program(_linker_path NAMES ${linker} ld.${linker})
+        if (_linker_path)
+            message(STATUS "linker        : ${linker} (${_linker_path})")
+            add_link_options(-fuse-ld=${linker})
+            set(_linker_found TRUE)
+            unset(_linker_path CACHE)
+            break()
+        else()
+            message(STATUS "linker        : ${linker} not found, trying next")
+            unset(_linker_path CACHE)
+        endif()
+    endforeach()
+
+    if(NOT _linker_found)
+        message(STATUS "linker        : system default (no alternative found)")
+    endif()
+endif()
+
+# バイナリ出力ディレクトリの設定
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # compile_commands.json 生成とプロジェクトルートディレクトリへの自動配置
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -36,31 +94,6 @@ add_custom_target(copy_compile_commands ALL
     DEPENDS ${CMAKE_BINARY_DIR}/compile_commands.json
     COMMENT "Copying compile_commands.json to project root"
 )
-
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# コンパイルの高速化
-find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
-    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
-    message(STATUS "Using ccache: ${CCACHE_PROGRAM}")
-else()
-    message(STATUS "ccache not found, building without cache")
-endif()
-option(USE_PCH "Use precompiled headers" OFF)
-# リンカ変更
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    message(STATUS "Using GCC: enabling lld")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    message(STATUS "Using Clang: enabling lld")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
-endif()
 
 include_directories(include)
 
