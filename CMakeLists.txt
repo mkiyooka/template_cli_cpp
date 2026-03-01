@@ -45,7 +45,8 @@ option(USE_PCH "Use precompiled headers" OFF)
 set(LINKER "auto" CACHE STRING "Linker to use (auto/mold/lld/bfd/default)")
 set_property(CACHE LINKER PROPERTY STRINGS auto mold lld bfd default)
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+# AppleClang は -fuse-ld= オプション非対応のためリンカ切り替え不可
+if (CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang)$")
     if (LINKER STREQUAL "auto")
         set(_candidates mold lld)
     elseif(LINKER STREQUAL "default")
