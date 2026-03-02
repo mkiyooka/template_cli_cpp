@@ -174,8 +174,8 @@ public:
      * @endcode
      */
     std::string Serialize(bool pretty = false) const {
-        size_t len = 0;
-        uint32_t flags = pretty ? YYJSON_WRITE_PRETTY : YYJSON_WRITE_NOFLAG;
+        std::size_t len = 0;
+        std::uint32_t flags = pretty ? YYJSON_WRITE_PRETTY : YYJSON_WRITE_NOFLAG;
         char *json_str = yyjson_mut_write(doc_, flags, &len);
         if (json_str == nullptr) {
             return "{}";
@@ -189,7 +189,7 @@ public:
      * @brief 現在のJSONサイズ（フィールド数）を取得
      * @return フィールド数
      */
-    size_t Size() const { return yyjson_mut_obj_size(root_); }
+    std::size_t Size() const { return yyjson_mut_obj_size(root_); }
 
     /**
      * @brief JSONが空かどうかチェック

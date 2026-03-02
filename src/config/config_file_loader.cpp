@@ -25,17 +25,21 @@ namespace {
 
 template <typename T>
 std::optional<T> ResolveTomlKey(const toml::table &tbl, std::string_view dotted_key) {
-    const auto dot_pos = dotted_key.find('.');
-    if (dot_pos == std::string_view::npos) {
-        return tbl[dotted_key].template value<T>();
+    const toml::table *current = &tbl;
+    std::string_view remaining = dotted_key;
+
+    while (true) {
+        const auto dot_pos = remaining.find('.');
+        if (dot_pos == std::string_view::npos) {
+            return (*current)[remaining].template value<T>();
+        }
+        const auto head = remaining.substr(0, dot_pos);
+        remaining = remaining.substr(dot_pos + 1);
+        current = (*current)[head].as_table();
+        if (current == nullptr) {
+            return std::nullopt;
+        }
     }
-    const auto head = dotted_key.substr(0, dot_pos);
-    const auto tail = dotted_key.substr(dot_pos + 1);
-    const auto *nested = tbl[head].as_table();
-    if (nested == nullptr) {
-        return std::nullopt;
-    }
-    return ResolveTomlKey<T>(*nested, tail);
 }
 
 void LoadFromToml(const std::string &file_path, Config &conf) {
@@ -78,20 +82,25 @@ void LoadFromToml(const std::string &file_path, Config &conf) {
 
 template <typename T>
 std::optional<T> ResolveJsonKey(const nlohmann::json &j, std::string_view dotted_key) {
-    const auto dot_pos = dotted_key.find('.');
-    if (dot_pos == std::string_view::npos) {
-        const auto key = std::string(dotted_key);
-        if (!j.is_object() || !j.contains(key)) {
+    const nlohmann::json *current = &j;
+    std::string_view remaining = dotted_key;
+
+    while (true) {
+        const auto dot_pos = remaining.find('.');
+        if (dot_pos == std::string_view::npos) {
+            const auto key = std::string(remaining);
+            if (!current->is_object() || !current->contains(key)) {
+                return std::nullopt;
+            }
+            return current->at(key).get<T>();
+        }
+        const auto head = std::string(remaining.substr(0, dot_pos));
+        remaining = remaining.substr(dot_pos + 1);
+        if (!current->is_object() || !current->contains(head) || !current->at(head).is_object()) {
             return std::nullopt;
         }
-        return j.at(key).get<T>();
+        current = &current->at(head);
     }
-    const auto head = std::string(dotted_key.substr(0, dot_pos));
-    const auto tail = dotted_key.substr(dot_pos + 1);
-    if (!j.is_object() || !j.contains(head) || !j.at(head).is_object()) {
-        return std::nullopt;
-    }
-    return ResolveJsonKey<T>(j.at(head), tail);
 }
 
 void LoadFromJson(const std::string &file_path, Config &conf) {
@@ -144,20 +153,25 @@ void LoadFromJson(const std::string &file_path, Config &conf) {
 
 template <typename T>
 std::optional<T> ResolveYamlKey(const fkyaml::node &node, std::string_view dotted_key) {
-    const auto dot_pos = dotted_key.find('.');
-    if (dot_pos == std::string_view::npos) {
-        const auto key = std::string(dotted_key);
-        if (!node.is_mapping() || !node.contains(key)) {
+    const fkyaml::node *current = &node;
+    std::string_view remaining = dotted_key;
+
+    while (true) {
+        const auto dot_pos = remaining.find('.');
+        if (dot_pos == std::string_view::npos) {
+            const auto key = std::string(remaining);
+            if (!current->is_mapping() || !current->contains(key)) {
+                return std::nullopt;
+            }
+            return current->at(key).get_value<T>();
+        }
+        const auto head = std::string(remaining.substr(0, dot_pos));
+        remaining = remaining.substr(dot_pos + 1);
+        if (!current->is_mapping() || !current->contains(head) || !current->at(head).is_mapping()) {
             return std::nullopt;
         }
-        return node.at(key).get_value<T>();
+        current = &current->at(head);
     }
-    const auto head = std::string(dotted_key.substr(0, dot_pos));
-    const auto tail = dotted_key.substr(dot_pos + 1);
-    if (!node.is_mapping() || !node.contains(head) || !node.at(head).is_mapping()) {
-        return std::nullopt;
-    }
-    return ResolveYamlKey<T>(node.at(head), tail);
 }
 
 void LoadFromYaml(const std::string &file_path, Config &conf) {

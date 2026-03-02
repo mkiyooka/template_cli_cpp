@@ -9,7 +9,7 @@
  */
 class NullLogger : public Logger {
 public:
-    void log(LogLevel, std::string_view) override {}
+    void Log(LogLevel, std::string_view) override {}
     void set_level(LogLevel) override {}
     LogLevel level() const override { return LogLevel::Off; }
 };

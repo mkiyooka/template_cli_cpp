@@ -17,9 +17,9 @@
  * enum class Module { X, Y, Z };
  *
  * RecorderManager<Module> manager;
- * manager.register_recorder(Module::X, std::make_shared<SpdlogRecorder>(loggerX));
- * manager[Module::X].enable();
- * manager[Module::X].write("{},{:.6f}", step, value);
+ * manager.RegisterRecorder(Module::X, std::make_shared<SpdlogRecorder>(loggerX));
+ * manager[Module::X].Enable();
+ * manager[Module::X].Write("{},{:.6f}", step, value);
  * @endcode
  */
 template <typename Key>
@@ -30,7 +30,7 @@ public:
      * @param key      モジュールを識別するキー
      * @param recorder レコーダーの所有権（shared_ptr）
      */
-    void register_recorder(Key key, std::shared_ptr<DataRecorder> recorder) {
+    void RegisterRecorder(Key key, std::shared_ptr<DataRecorder> recorder) {
         recorders_[key] = std::move(recorder);
     }
 
@@ -49,9 +49,9 @@ public:
     /**
      * @brief 全レコーダーのバッファをフラッシュする
      */
-    void flush_all() {
+    void FlushAll() {
         for (auto& [key, rec] : recorders_) {
-            rec->flush();
+            rec->Flush();
         }
     }
 

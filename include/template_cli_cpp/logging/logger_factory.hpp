@@ -19,8 +19,7 @@
  * spdlog の詳細を知らなくてもよくする。
  *
  * @code
- * auto logger = LoggerFactory::make_file("app", "app.log", LogLevel::Info);
- * SpdlogLogger logger_impl(logger);
+ * auto logger = LoggerFactory::MakeFile("app", "app.log", LogLevel::Info);
  * @endcode
  */
 struct LoggerFactory {
@@ -29,7 +28,7 @@ struct LoggerFactory {
      * @param name   spdlog 内部名（重複不可）
      * @param level  初期ログレベル
      */
-    static std::unique_ptr<Logger> make_console(
+    static std::unique_ptr<Logger> MakeConsole(
         const std::string& name,
         LogLevel level = LogLevel::Info)
     {
@@ -45,7 +44,7 @@ struct LoggerFactory {
      * @param file_path 出力ファイルパス
      * @param level     初期ログレベル
      */
-    static std::unique_ptr<Logger> make_file(
+    static std::unique_ptr<Logger> MakeFile(
         const std::string& name,
         const std::string& file_path,
         LogLevel level = LogLevel::Info)
@@ -59,7 +58,7 @@ struct LoggerFactory {
     /**
      * @brief 何も出力しないロガーを生成する（テスト・無効化用）
      */
-    static std::unique_ptr<Logger> make_null() {
+    static std::unique_ptr<Logger> MakeNull() {
         return std::make_unique<NullLogger>();
     }
 };

@@ -23,12 +23,12 @@ enum class Module { Solver, Postproc };
 #include "template_cli_cpp/recording/recorder_manager.hpp"
 
 // 診断ログ: コンソール出力、Info レベル以上
-auto logger = LoggerFactory::make_console("app", LogLevel::Info);
+auto logger = LoggerFactory::MakeConsole("app", LogLevel::Info);
 
 // 解析データ: モジュールごとにファイル出力
 RecorderManager<Module> manager;
-manager.register_recorder(Module::Solver,   RecorderFactory::make_file("solver",   "solver.csv"));
-manager.register_recorder(Module::Postproc, RecorderFactory::make_file("postproc", "postproc.csv"));
+manager.RegisterRecorder(Module::Solver,   RecorderFactory::MakeFile("solver",   "solver.csv"));
+manager.RegisterRecorder(Module::Postproc, RecorderFactory::MakeFile("postproc", "postproc.csv"));
 ```
 
 ### 3. AppOutput にまとめて注入する
@@ -47,66 +47,66 @@ run(out);
 ```cpp
 Logger& log = out.logger();
 
-log.log(LogLevel::Trace,    "詳細トレース");
-log.log(LogLevel::Debug,    "デバッグ情報");
-log.log(LogLevel::Info,     "進行状況");
-log.log(LogLevel::Warn,     "警告");
-log.log(LogLevel::Error,    "エラー");
-log.log(LogLevel::Critical, "致命的エラー");
+log.Log(LogLevel::Trace,    "詳細トレース");
+log.Log(LogLevel::Debug,    "デバッグ情報");
+log.Log(LogLevel::Info,     "進行状況");
+log.Log(LogLevel::Warn,     "警告");
+log.Log(LogLevel::Error,    "エラー");
+log.Log(LogLevel::Critical, "致命的エラー");
 ```
 
 コスト高な文字列生成はレベル確認後に行う。
 
 ```cpp
-if (log.should_log(LogLevel::Debug)) {
-    log.log(LogLevel::Debug, expensive_to_string(state));
+if (log.ShouldLog(LogLevel::Debug)) {
+    log.Log(LogLevel::Debug, expensive_to_string(state));
 }
 ```
 
 ### ファクトリ一覧
 
-| メソッド                               | 出力先                 |
-| -------------------------------------- | ---------------------- |
-| `LoggerFactory::make_console(name)`    | 標準出力（カラー付き） |
-| `LoggerFactory::make_file(name, path)` | ファイル（同期）       |
-| `LoggerFactory::make_null()`           | 何もしない             |
+| メソッド                              | 出力先                 |
+| ------------------------------------- | ---------------------- |
+| `LoggerFactory::MakeConsole(name)`    | 標準出力（カラー付き） |
+| `LoggerFactory::MakeFile(name, path)` | ファイル（同期）       |
+| `LoggerFactory::MakeNull()`           | 何もしない             |
 
-`make_console` / `make_file` は第3引数でログレベルを指定できる（省略時は `Info`）。
+`MakeConsole` / `MakeFile` は第3引数でログレベルを指定できる（省略時は `Info`）。
 
 ---
 
 ## DataRecorder の使い方
 
-### enable / disable と write
+### Enable / Disable と Write
 
 ```cpp
 DataRecorder& rec = out.recorders()[Module::Solver];
 
-rec.enable();                              // 記録開始
-rec.write("{},{:.6f}", step, value);       // fmt 形式で書き込み
-rec.write("{},{},{}", t, x, y);
-rec.disable();                             // 記録停止（以降の write は無視される）
-rec.flush();                               // バッファをフラッシュ
+rec.Enable();                              // 記録開始
+rec.Write("{},{:.6f}", step, value);       // fmt 形式で書き込み
+rec.Write("{},{},{}", t, x, y);
+rec.Disable();                             // 記録停止（以降の Write は無視される）
+rec.Flush();                               // バッファをフラッシュ
 ```
 
-`write()` はフォーマット文字列をコンパイル時にチェックする（`fmt::format_string`）。
-`is_enabled()` が `false` のときはフォーマット処理自体をスキップするため、無効時のコストはゼロ。
+`Write()` はフォーマット文字列をコンパイル時にチェックする（`fmt::format_string`）。
+`IsEnabled()` が `false` のときはフォーマット処理自体をスキップするため、無効時のコストはゼロ。
 
 ### 全レコーダーを一括フラッシュする
 
 ```cpp
-out.recorders().flush_all();
+out.recorders().FlushAll();
 ```
 
 ### ファクトリ一覧
 
-| メソッド                                 | 出力先           | 初期状態 |
-| ---------------------------------------- | ---------------- | -------- |
-| `RecorderFactory::make_file(name, path)` | ファイル（同期） | disabled |
-| `RecorderFactory::make_null()`           | 何もしない       | disabled |
+| メソッド                                | 出力先           | 初期状態 |
+| --------------------------------------- | ---------------- | -------- |
+| `RecorderFactory::MakeFile(name, path)` | ファイル（同期） | disabled |
+| `RecorderFactory::MakeNull()`           | 何もしない       | disabled |
 
-`make_file` で生成したレコーダーは初期状態が `disabled`。
-記録を開始するには明示的に `enable()` を呼ぶ。
+`MakeFile` で生成したレコーダーは初期状態が `disabled`。
+記録を開始するには明示的に `Enable()` を呼ぶ。
 
 ---
 
@@ -127,7 +127,7 @@ TestLogger test_log;
 test_log.set_level(LogLevel::Debug);
 
 RecorderManager<Module> manager;
-manager.register_recorder(Module::Solver, std::make_shared<NullRecorder>());
+manager.RegisterRecorder(Module::Solver, std::make_shared<NullRecorder>());
 
 AppOutput<Module> out(test_log, manager);
 run(out);
@@ -146,27 +146,27 @@ test_log.clear(); // エントリをリセット
 
 ```cpp
 void run(AppOutput<Module>& out) {
-    out.recorders()[Module::Solver].enable();
-    out.recorders()[Module::Postproc].disable(); // この回は不要
+    out.recorders()[Module::Solver].Enable();
+    out.recorders()[Module::Postproc].Disable(); // この回は不要
 
     for (int step = 0; step < steps; ++step) {
         double x = compute(step);
-        out.recorders()[Module::Solver].write("{},{:.9f}", step, x);
-        out.logger().log(LogLevel::Debug, "step done");
+        out.recorders()[Module::Solver].Write("{},{:.9f}", step, x);
+        out.logger().Log(LogLevel::Debug, "step done");
     }
 
-    out.recorders().flush_all();
+    out.recorders().FlushAll();
 }
 ```
 
 ### 出力を完全に無効化する（本番ランの高速化）
 
 ```cpp
-auto logger = LoggerFactory::make_null();
+auto logger = LoggerFactory::MakeNull();
 
 RecorderManager<Module> manager;
-manager.register_recorder(Module::Solver,   RecorderFactory::make_null());
-manager.register_recorder(Module::Postproc, RecorderFactory::make_null());
+manager.RegisterRecorder(Module::Solver,   RecorderFactory::MakeNull());
+manager.RegisterRecorder(Module::Postproc, RecorderFactory::MakeNull());
 
 AppOutput<Module> out(*logger, manager);
 run(out); // I/O コストゼロ

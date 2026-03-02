@@ -17,8 +17,8 @@
  * spdlog の詳細を知らなくてもよくする。
  *
  * @code
- * auto rec = RecorderFactory::make_file("moduleX", "moduleX.csv");
- * rec->enable();
+ * auto rec = RecorderFactory::MakeFile("moduleX", "moduleX.csv");
+ * rec->Enable();
  * @endcode
  */
 struct RecorderFactory {
@@ -31,7 +31,7 @@ struct RecorderFactory {
      * @param name      spdlog 内部名（重複不可）
      * @param file_path 出力ファイルパス
      */
-    static std::unique_ptr<DataRecorder> make_file(
+    static std::unique_ptr<DataRecorder> MakeFile(
         const std::string& name,
         const std::string& file_path)
     {
@@ -43,7 +43,7 @@ struct RecorderFactory {
     /**
      * @brief 何も出力しないレコーダーを生成する（テスト・無効化用）
      */
-    static std::unique_ptr<DataRecorder> make_null() {
+    static std::unique_ptr<DataRecorder> MakeNull() {
         return std::make_unique<NullRecorder>();
     }
 };

@@ -27,7 +27,7 @@ struct TempFile {
 
     ~TempFile() { fs::remove(path); }
 
-    std::string str() const { return path.string(); }
+    std::string Str() const { return path.string(); }
 };
 
 } // namespace
@@ -58,7 +58,7 @@ value = 42
 )");
 
     Config conf;
-    config::LoadFromFile(tmp.str(), conf);
+    config::LoadFromFile(tmp.Str(), conf);
 
     CHECK(conf.title == "TestApp");
     CHECK(conf.value == 42);
@@ -82,7 +82,7 @@ number = 2
 )");
 
     Config conf;
-    config::LoadFromFile(tmp.str(), conf);
+    config::LoadFromFile(tmp.Str(), conf);
 
     CHECK(conf.title == "WithPlugins");
     CHECK(conf.plugins.size() == 2);
@@ -99,7 +99,7 @@ title = "PartialOnly"
 )");
 
     Config conf; // デフォルト: title="title", value=10
-    config::LoadFromFile(tmp.str(), conf);
+    config::LoadFromFile(tmp.Str(), conf);
 
     CHECK(conf.title == "PartialOnly");
     CHECK(conf.value == 10); // デフォルト値維持
@@ -119,7 +119,7 @@ TEST_CASE("LoadFromFile: JSON basic fields") {
 })");
 
     Config conf;
-    config::LoadFromFile(tmp.str(), conf);
+    config::LoadFromFile(tmp.Str(), conf);
 
     CHECK(conf.title == "JsonApp");
     CHECK(conf.value == 99);
@@ -136,7 +136,7 @@ TEST_CASE("LoadFromFile: JSON with plugins") {
 })");
 
     Config conf;
-    config::LoadFromFile(tmp.str(), conf);
+    config::LoadFromFile(tmp.Str(), conf);
 
     CHECK(conf.title == "JsonPlugins");
     CHECK(conf.plugins.size() == 2);
@@ -156,7 +156,7 @@ settings:
 )");
 
     Config conf;
-    config::LoadFromFile(tmp.str(), conf);
+    config::LoadFromFile(tmp.Str(), conf);
 
     CHECK(conf.title == "YamlApp");
     CHECK(conf.value == 77);
@@ -175,7 +175,7 @@ plugin:
 )");
 
     Config conf;
-    config::LoadFromFile(tmp.str(), conf);
+    config::LoadFromFile(tmp.Str(), conf);
 
     CHECK(conf.title == "YamlPlugins");
     CHECK(conf.plugins.size() == 2);
@@ -190,7 +190,7 @@ plugin:
 TEST_CASE("LoadFromFile: unsupported extension throws") {
     const TempFile tmp("test_config.xml", "<config/>");
     Config conf;
-    CHECK_THROWS_AS(config::LoadFromFile(tmp.str(), conf), std::runtime_error);
+    CHECK_THROWS_AS(config::LoadFromFile(tmp.Str(), conf), std::runtime_error);
 }
 
 // ──────────────────────────────────────────────
@@ -206,7 +206,7 @@ value = 55
 )");
 
     config::ConfigManager mgr;
-    const Config conf = mgr.Resolve(tmp.str());
+    const Config conf = mgr.Resolve(tmp.Str());
 
     CHECK(conf.title == "FromFile");
     CHECK(conf.value == 55);
@@ -222,7 +222,7 @@ value = 100
 
     CLI::App app{"test"};
     config::ConfigManager mgr;
-    std::string config_path = tmp.str();
+    std::string config_path = tmp.Str();
     app.add_option("-c,--config", config_path, "Config file");
     mgr.RegisterOptions(app);
     // vector形式でパース (プログラム名を除いた引数のみ)

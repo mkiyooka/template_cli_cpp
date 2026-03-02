@@ -6,7 +6,7 @@
 
 設計上の目標：
 
-- DI（依存性注入）によりシミュレーションコアを出力実装から分離する
+- DI（依存性注入）によりアプリケーションコアを出力実装から分離する
 - モジュール単位でデータ出力の有効・無効を切り替える
 - 出力先（ファイル・コンソール等）を柔軟に構成できる
 - 将来的な並列実行（OpenMP / MPI）対応を考慮する
@@ -42,7 +42,7 @@ AppOutput<Module>（DI）
         - `spdlog_logger.hpp` — spdlog を使った実装
         - `logger_factory.hpp` — Logger インスタンス生成ファクトリ
     - `recording/`
-        - `data_recorder.hpp` — DataRecorder 抽象基底クラス・`write()` ヘルパー
+        - `data_recorder.hpp` — DataRecorder 抽象基底クラス・`Write()` ヘルパー
         - `null_recorder.hpp` — 何もしない実装
         - `spdlog_recorder.hpp` — spdlog を使った実装
         - `recorder_manager.hpp` — モジュール別管理
@@ -64,7 +64,7 @@ AppOutput<Module>（DI）
 ### DataRecorder（解析データ）
 
 - 科学データをモジュール別に記録する
-- enable / disable による出力制御（レベル概念なし）
+- Enable / Disable による出力制御（レベル概念なし）
 - 出力フォーマットは raw（CSV 等、タイムスタンプ等のメタデータなし）
 
 ---
@@ -82,12 +82,12 @@ class Logger {
 public:
     virtual ~Logger() = default;
 
-    virtual void log(LogLevel level, std::string_view msg) = 0;
+    virtual void Log(LogLevel level, std::string_view msg) = 0;
     virtual void set_level(LogLevel level) = 0;
     virtual LogLevel level() const = 0;
 
     // 非仮想ヘルパー: コスト高い文字列生成をレベル確認後に行うために使う
-    bool should_log(LogLevel lvl) const { return lvl >= level(); }
+    bool ShouldLog(LogLevel lvl) const { return lvl >= level(); }
 };
 ```
 
@@ -100,31 +100,31 @@ class DataRecorder {
 public:
     virtual ~DataRecorder() = default;
 
-    virtual void enable() = 0;
-    virtual void disable() = 0;
-    virtual bool is_enabled() const = 0;
+    virtual void Enable() = 0;
+    virtual void Disable() = 0;
+    virtual bool IsEnabled() const = 0;
 
-    virtual void output(std::string_view msg) = 0;
-    virtual void flush() = 0;
+    virtual void Output(std::string_view msg) = 0;
+    virtual void Flush() = 0;
 
-    // 非仮想ヘルパー: fmt でフォーマットしてから output() に渡す
+    // 非仮想ヘルパー: fmt でフォーマットしてから Output() に渡す
     template <typename... Args>
-    void write(fmt::format_string<Args...> fmt_str, Args&&... args);
+    void Write(fmt::format_string<Args...> fmt_str, Args&&... args);
 };
 ```
 
-#### write() の設計方針
+#### Write() の設計方針
 
-`output(string_view)` は文字列を受け取るだけなのでラッパー経由では fmt のフォーマット機能が失われる。
-これを解決するため、非仮想テンプレートの `write()` を提供する。
+`Output(string_view)` は文字列を受け取るだけなのでラッパー経由では fmt のフォーマット機能が失われる。
+これを解決するため、非仮想テンプレートの `Write()` を提供する。
 
 ```cpp
-recorder.write("{},{:.6f}", step, value);
+recorder.Write("{},{:.6f}", step, value);
 ```
 
 - フォーマット文字列は `fmt::format_string` によりコンパイル時にチェックされる
-- `is_enabled()` が false の場合は `fmt::format` 自体をスキップする（フォーマットコスト不要）
-- 仮想関数は `output(string_view)` のみなので、テスト・モックが容易
+- `IsEnabled()` が false の場合は `fmt::format` 自体をスキップする（フォーマットコスト不要）
+- 仮想関数は `Output(string_view)` のみなので、テスト・モックが容易
 
 ---
 
@@ -195,16 +195,16 @@ enum class をキーにして複数の DataRecorder を管理する。
 template <typename Key>
 class RecorderManager {
 public:
-    void register_recorder(Key key, std::shared_ptr<DataRecorder> recorder);
+    void RegisterRecorder(Key key, std::shared_ptr<DataRecorder> recorder);
     DataRecorder& operator[](Key key);            // 未登録は out_of_range
     const DataRecorder& operator[](Key key) const;
-    void flush_all();
+    void FlushAll();
 };
 ```
 
 ### AppOutput\<Key\>
 
-Logger と RecorderManager を一つにまとめ、シミュレーションコアへ DI で注入する。
+Logger と RecorderManager を一つにまとめ、アプリケーションコアへ DI で注入する。
 
 ```cpp
 template <typename Key>
@@ -226,24 +226,24 @@ public:
 
 ```cpp
 // ファイルへ書き込む同期ロガー
-auto logger = LoggerFactory::make_file("app", "app.log", LogLevel::Info);
+auto logger = LoggerFactory::MakeFile("app", "app.log", LogLevel::Info);
 
 // 標準出力（カラー付き）
-auto logger = LoggerFactory::make_console("app", LogLevel::Debug);
+auto logger = LoggerFactory::MakeConsole("app", LogLevel::Debug);
 
 // 何も出力しない
-auto logger = LoggerFactory::make_null();
+auto logger = LoggerFactory::MakeNull();
 ```
 
 ### RecorderFactory
 
 ```cpp
 // ファイルへ書き込む同期レコーダー（初期状態は disabled）
-auto rec = RecorderFactory::make_file("moduleX", "moduleX.csv");
-rec->enable();
+auto rec = RecorderFactory::MakeFile("moduleX", "moduleX.csv");
+rec->Enable();
 
 // 何も出力しない
-auto rec = RecorderFactory::make_null();
+auto rec = RecorderFactory::MakeNull();
 ```
 
 ---
@@ -277,12 +277,12 @@ FetchContent_MakeAvailable(spdlog)
 enum class Module { X, Y, Z };
 
 // 診断ロガー
-auto logger = LoggerFactory::make_file("diag", "diag.log", LogLevel::Info);
+auto logger = LoggerFactory::MakeFile("diag", "diag.log", LogLevel::Info);
 
 // モジュール別レコーダー
 RecorderManager<Module> manager;
-manager.register_recorder(Module::X, RecorderFactory::make_file("moduleX", "moduleX.csv"));
-manager.register_recorder(Module::Y, RecorderFactory::make_null());
+manager.RegisterRecorder(Module::X, RecorderFactory::MakeFile("moduleX", "moduleX.csv"));
+manager.RegisterRecorder(Module::Y, RecorderFactory::MakeNull());
 
 // AppOutput に統合して注入
 AppOutput<Module> out(*logger, manager);
@@ -295,19 +295,19 @@ run(out);
 
 ```cpp
 void run(AppOutput<Module>& out) {
-    out.logger().log(LogLevel::Debug, "initialize start");
+    out.logger().Log(LogLevel::Debug, "initialize start");
 
-    out.recorders()[Module::X].enable();
-    out.recorders()[Module::Y].disable();
+    out.recorders()[Module::X].Enable();
+    out.recorders()[Module::Y].Disable();
 
     for (int step = 0; step < 100; ++step) {
         double value = compute(step);
 
         // fmt::format_string によるコンパイル時チェック付きフォーマット
-        out.recorders()[Module::X].write("{},{:.6f}", step, value);
+        out.recorders()[Module::X].Write("{},{:.6f}", step, value);
     }
 
-    out.recorders()[Module::X].flush();
+    out.recorders()[Module::X].Flush();
 }
 ```
 
@@ -315,10 +315,10 @@ void run(AppOutput<Module>& out) {
 
 ## 非同期運用方針
 
-| 用途       | 推奨                                           |
-| ---------- | ---------------------------------------------- |
-| 診断ログ   | 非同期推奨（SpdlogLogger async）               |
-| 解析データ | 原則同期（順序保証・データ欠落防止）           |
+| 用途       | 推奨                                 |
+| ---------- | ------------------------------------ |
+| 診断ログ   | 非同期推奨（SpdlogLogger async）     |
+| 解析データ | 原則同期（順序保証・データ欠落防止） |
 
 大量出力時のみ解析データの非同期化を検討する。
 

@@ -17,9 +17,9 @@
  * AppOutput<Module> out(logger, recorder_manager);
  *
  * void run(AppOutput<Module>& out) {
- *     out.logger().log(LogLevel::Debug, "initialize start");
- *     out.recorders()[Module::X].enable();
- *     out.recorders()[Module::X].write("{},{:.6f}", step, value);
+ *     out.logger().Log(LogLevel::Debug, "initialize start");
+ *     out.recorders()[Module::X].Enable();
+ *     out.recorders()[Module::X].Write("{},{:.6f}", step, value);
  * }
  * @endcode
  */

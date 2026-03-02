@@ -9,9 +9,9 @@
  */
 class NullRecorder : public DataRecorder {
 public:
-    void enable() override {}
-    void disable() override {}
-    bool is_enabled() const override { return false; }
-    void output(std::string_view) override {}
-    void flush() override {}
+    void Enable() override {}
+    void Disable() override {}
+    bool IsEnabled() const override { return false; }
+    void Output(std::string_view) override {}
+    void Flush() override {}
 };

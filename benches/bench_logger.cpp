@@ -24,8 +24,8 @@ constexpr const char* kDiSpdlogAFile = "/tmp/bench_di_spdlog_async.log";
 constexpr int kBatchSize = 1000;
 
 // Logger 経由でログを1件出力する（DI の呼び出し側を模擬）
-void write_one(Logger& logger, std::string_view msg) {
-    logger.log(LogLevel::Info, msg);
+void WriteOne(Logger& logger, std::string_view msg) {
+    logger.Log(LogLevel::Info, msg);
 }
 
 } // namespace
@@ -98,23 +98,23 @@ int main() {
 
     bench.minEpochIterations(100000);
     bench.run("NullLogger      [latency:DI   ] 1 msg (no-op)", [&] {
-        write_one(null_logger, "Benchmark message 42");
+        WriteOne(null_logger, "Benchmark message 42");
     });
 
     bench.minEpochIterations(1300000);
     bench.run("TestLogger      [latency:DI   ] 1 msg (memory append)", [&] {
-        write_one(test_logger, "Benchmark message 42");
+        WriteOne(test_logger, "Benchmark message 42");
     });
 
     bench.minEpochIterations(100000);
     bench.run("SpdlogLogger    [latency:DI   ] 1 msg (spdlog sync)", [&] {
-        write_one(di_spdlog_sync, "Benchmark message 42");
+        WriteOne(di_spdlog_sync, "Benchmark message 42");
     });
 
     bench.minEpochIterations(1000);
     bench.run("SpdlogLogger    [latency:DI   ] 1 msg (spdlog async + flush)", [&] {
         di_spdlog_async_inner->flush();
-        write_one(di_spdlog_async, "Benchmark message 42");
+        WriteOne(di_spdlog_async, "Benchmark message 42");
         di_spdlog_async_inner->flush();
     });
 
@@ -153,7 +153,7 @@ int main() {
         "NullLogger      [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (no-op)",
         [&] {
             for (int i = 0; i < kBatchSize; ++i) {
-                write_one(null_logger, "Batch message");
+                WriteOne(null_logger, "Batch message");
             }
         }
     );
@@ -163,7 +163,7 @@ int main() {
         [&] {
             test_logger.clear();
             for (int i = 0; i < kBatchSize; ++i) {
-                write_one(test_logger, "Batch message");
+                WriteOne(test_logger, "Batch message");
             }
         }
     );
@@ -173,7 +173,7 @@ int main() {
         "SpdlogLogger    [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (sync + flush)",
         [&] {
             for (int i = 0; i < kBatchSize; ++i) {
-                write_one(di_spdlog_sync, "Batch message");
+                WriteOne(di_spdlog_sync, "Batch message");
             }
             di_spdlog_sync_inner->flush();
         }
@@ -184,7 +184,7 @@ int main() {
         "SpdlogLogger    [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (async + flush)",
         [&] {
             for (int i = 0; i < kBatchSize; ++i) {
-                write_one(di_spdlog_async, "Batch message");
+                WriteOne(di_spdlog_async, "Batch message");
             }
             di_spdlog_async_inner->flush();
         }

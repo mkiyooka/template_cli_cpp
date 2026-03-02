@@ -10,7 +10,7 @@
  * @brief spdlog を使った解析データレコーダー
  *
  * spdlog::logger を内包し、DataRecorder インターフェース経由でデータを出力する。
- * ログレベルではなく enable/disable で出力制御する。
+ * ログレベルではなく Enable/Disable で出力制御する。
  * パターンを "%v" にすることでメッセージのみを出力する（タイムスタンプ等なし）。
  *
  * spdlog::logger の生成とシンク設定は呼び出し側が行う。
@@ -19,8 +19,8 @@
  * auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("moduleX.csv");
  * auto inner = std::make_shared<spdlog::logger>("moduleX", sink);
  * SpdlogRecorder recorder(inner);
- * recorder.enable();
- * recorder.write("{},{:.6f}", step, value);
+ * recorder.Enable();
+ * recorder.Write("{},{:.6f}", step, value);
  * @endcode
  */
 class SpdlogRecorder : public DataRecorder {
@@ -32,17 +32,17 @@ public:
         logger_->set_level(spdlog::level::off);
     }
 
-    void enable() override { logger_->set_level(spdlog::level::info); }
+    void Enable() override { logger_->set_level(spdlog::level::info); }
 
-    void disable() override { logger_->set_level(spdlog::level::off); }
+    void Disable() override { logger_->set_level(spdlog::level::off); }
 
-    bool is_enabled() const override {
+    bool IsEnabled() const override {
         return logger_->level() != spdlog::level::off;
     }
 
-    void output(std::string_view msg) override { logger_->info(msg); }
+    void Output(std::string_view msg) override { logger_->info(msg); }
 
-    void flush() override { logger_->flush(); }
+    void Flush() override { logger_->flush(); }
 
 private:
     std::shared_ptr<spdlog::logger> logger_;

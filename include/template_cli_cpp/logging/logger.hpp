@@ -19,8 +19,7 @@ enum class LogLevel : int {
  * @brief ロガーの共通インターフェース
  *
  * DI（依存性注入）により呼び出し側をロガー実装から分離する。
- * 実運用では SpdlogAdapter / QuillAdapter / LwLogAdapter を、
- * テストでは NullLogger を注入する。
+ * 実運用では SpdlogLogger を、テストでは NullLogger を注入する。
  */
 class Logger {
 public:
@@ -31,7 +30,7 @@ public:
      * @param level ログレベル
      * @param msg   出力メッセージ
      */
-    virtual void log(LogLevel level, std::string_view msg) = 0;
+    virtual void Log(LogLevel level, std::string_view msg) = 0;
 
     /**
      * @brief 最小ログレベルを設定する
@@ -48,10 +47,10 @@ public:
      *
      * コストの高い文字列生成を出力が確定した場合だけ行うために使う。
      * @code
-     * if (logger.should_log(LogLevel::Debug)) {
-     *     logger.log(LogLevel::Debug, expensive_to_string());
+     * if (logger.ShouldLog(LogLevel::Debug)) {
+     *     logger.Log(LogLevel::Debug, expensive_to_string());
      * }
      * @endcode
      */
-    bool should_log(LogLevel lvl) const { return lvl >= level(); }
+    bool ShouldLog(LogLevel lvl) const { return lvl >= level(); }
 };
