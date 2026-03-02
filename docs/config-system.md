@@ -1,5 +1,9 @@
 # 設定システム設計ドキュメント
 
+利用ガイドは [config-system-guide.md](config-system-guide.md) を参照。
+
+---
+
 ## 概要
 
 このプロジェクトの設定システムは、**CLI引数**と**設定ファイル（TOML / JSONC / YAML）**を統合管理する。
@@ -9,11 +13,11 @@
 
 ### 対応する設定ファイル形式
 
-|拡張子|形式|ライブラリ|備考|
-|---|---|---|---|
-|`.toml`|TOML|tomlplusplus v3.4.0||
-|`.json`|JSONC|nlohmann/json v3.12.0|`//` コメント対応|
-|`.yaml` / `.yml`|YAML|fkYAML v0.4.2||
+| 拡張子           | 形式  | ライブラリ            | 備考              |
+| ---------------- | ----- | --------------------- | ----------------- |
+| `.toml`          | TOML  | tomlplusplus v3.4.0   |                   |
+| `.json`          | JSONC | nlohmann/json v3.12.0 | `//` コメント対応 |
+| `.yaml` / `.yml` | YAML  | fkYAML v0.4.2         |                   |
 
 ### 優先度
 
@@ -302,73 +306,4 @@ number = 1
 [[plugin]]
 file = "b.so"
 number = 2
-```
-
----
-
-## 新しいオプションの追加方法
-
-変更箇所は **2ファイルのみ**。
-
-### 1. `include/config/config_loader.hpp` にフィールドを追加
-
-```cpp
-struct Config {
-    std::string title = "title";
-    std::uint64_t value = 10;
-    std::string log_level = "info";  // 追加（デフォルト値も指定）
-    std::vector<PluginConfig> plugins;
-};
-```
-
-### 2. `include/config/config_schema.hpp` の `kConfigSchema` に1行追加
-
-```cpp
-inline constexpr auto kConfigSchema = std::make_tuple(
-    FieldDescriptor{"--title",          "title",          "Application title", &Config::title},
-    FieldDescriptor{"--settings.value", "settings.value", "Numeric value",     &Config::value},
-    FieldDescriptor{"--logging.level",  "logging.level",  "Log level",         &Config::log_level}  // 追加
-);
-```
-
-これだけで以下が**自動的に**有効になる。
-
-- CLI11 への `--logging.level` オプション登録
-- TOML / JSONC / YAML の `logging.level` キーからの読み込み
-- `ShowConfig` での表示
-
-### 対応する設定ファイル例
-
-```toml
-# TOML
-[logging]
-level = "warn"
-```
-
-```json
-// JSONC
-{
-    "logging": {
-        "level": "warn"
-    }
-}
-```
-
-```yaml
-# YAML
-logging:
-  level: warn
-```
-
----
-
-## ShowConfig の出力形式
-
-スキーマフィールドは `config_key: 値` の形式で出力される。
-
-```text
-title: MyApp
-settings.value: 42
-plugin: file=a.so, number=1
-plugin: file=b.so, number=2
 ```
