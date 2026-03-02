@@ -1,0 +1,52 @@
+#pragma once
+
+#include <memory>
+
+#include <spdlog/spdlog.h>
+
+#include "template_cli_cpp/logging/logger.hpp"
+
+/**
+ * @brief spdlog を使ったロガー
+ *
+ * spdlog の同期・非同期ロガーを Logger インターフェース経由で利用する。
+ * spdlog::logger の生成は呼び出し側が行う。
+ *
+ * @code
+ * auto sl = spdlog::basic_logger_mt("app", "app.log");
+ * SpdlogLogger logger(sl);
+ * process(logger);
+ * @endcode
+ */
+class SpdlogLogger : public Logger {
+public:
+    explicit SpdlogLogger(std::shared_ptr<spdlog::logger> logger)
+        : logger_(std::move(logger)) {}
+
+    void log(LogLevel lvl, std::string_view msg) override {
+        logger_->log(to_spdlog_level(lvl), msg);
+    }
+
+    void set_level(LogLevel lvl) override {
+        level_ = lvl;
+        logger_->set_level(to_spdlog_level(lvl));
+    }
+
+    LogLevel level() const override { return level_; }
+
+private:
+    std::shared_ptr<spdlog::logger> logger_;
+    LogLevel level_ = LogLevel::Trace;
+
+    static spdlog::level::level_enum to_spdlog_level(LogLevel lvl) {
+        switch (lvl) {
+        case LogLevel::Trace:    return spdlog::level::trace;
+        case LogLevel::Debug:    return spdlog::level::debug;
+        case LogLevel::Info:     return spdlog::level::info;
+        case LogLevel::Warn:     return spdlog::level::warn;
+        case LogLevel::Error:    return spdlog::level::err;
+        case LogLevel::Critical: return spdlog::level::critical;
+        default:                 return spdlog::level::off;
+        }
+    }
+};

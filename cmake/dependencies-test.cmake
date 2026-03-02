@@ -9,6 +9,13 @@ add_external_package(doctest ext/doctest-2.4.12
 )
 FetchContent_MakeAvailable(doctest)
 
+# nanobench - Benchmarking library (header-only)
+add_external_package(nanobench ext/nanobench-4.3.11
+    URL https://github.com/martinus/nanobench/archive/refs/tags/v4.3.11.tar.gz
+    URL_HASH SHA256=53a5a913fa695c23546661bf2cd22b299e10a3e994d9ed97daf89b5cada0da70
+)
+FetchContent_MakeAvailable(nanobench)
+
 # Mark doctest as system library to exclude it from clang-tidy checks
 if(TARGET doctest)
     get_target_property(doctest_include_dirs doctest INTERFACE_INCLUDE_DIRECTORIES)

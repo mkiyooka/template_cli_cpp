@@ -83,9 +83,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang)$")
     endif()
 endif()
 
-# バイナリ出力ディレクトリの設定
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
 # compile_commands.json 生成とプロジェクトルートディレクトリへの自動配置
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_custom_target(copy_compile_commands ALL
@@ -107,6 +104,9 @@ include(cmake/dependencies-test.cmake)
 # ==============================================================================
 # Main Application - メインCLIアプリケーション
 # ==============================================================================
+
+# アプリバイナリは build/ 直下
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # メインのソースディレクトリ
 add_subdirectory(src)
@@ -130,6 +130,7 @@ endif()
 enable_testing()
 
 add_subdirectory(tests)
+add_subdirectory(benches)
 
 # カスタムターゲット
 include(cmake/custom-targets.cmake)

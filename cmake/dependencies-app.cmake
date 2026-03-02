@@ -44,5 +44,15 @@ FetchContent_MakeAvailable(fkYAML)
 
 # Create interface library for fkYAML (header-only)
 add_library(fkYAML_target INTERFACE)
-target_include_directories(fkYAML_target INTERFACE ${fkYAML_SOURCE_DIR}/include)
+target_include_directories(fkYAML_target INTERFACE ${fkyaml_SOURCE_DIR}/include)
+
+# spdlog - Fast C++ logging library
+# SPDLOG_FMT_EXTERNAL=ON: spdlog のバンドル fmt を使わず、
+# 上記で導入済みの fmt::fmt を共有する（ODR違反・二重定義を防ぐ）
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "" FORCE)
+add_external_package(spdlog third_party/spdlog-1.17.0
+    URL https://github.com/gabime/spdlog/archive/refs/tags/v1.17.0.tar.gz
+    URL_HASH SHA256=d8862955c6d74e5846b3f580b1605d2428b11d97a410d86e2fb13e857cd3a744
+)
+FetchContent_MakeAvailable(spdlog)
 

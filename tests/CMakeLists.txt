@@ -1,3 +1,6 @@
+# テストバイナリは build/tests/ 以下
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+
 # Config manager test
 add_executable(test_config_manager
     test_config_manager.cpp
