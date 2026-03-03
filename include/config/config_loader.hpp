@@ -6,7 +6,7 @@
 
 struct PluginConfig {
     std::string file;
-    std::uint64_t number;
+    std::uint64_t number = 0;
 };
 
 struct Config {

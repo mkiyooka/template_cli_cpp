@@ -267,7 +267,7 @@ TEST_CASE("JsonBuilder: Serialize pretty") {
 TEST_CASE("JsonBuilder: move semantics") {
     json::JsonBuilder b1;
     b1.Add("val", 10);
-    json::JsonBuilder b2 = std::move(b1);
+    const json::JsonBuilder b2 = std::move(b1);
     auto j = Parse(b2.Serialize());
     CHECK(j["val"] == 10);
     // ムーブ後の b1 は空ドキュメントと同等（デストラクタが安全に動く）

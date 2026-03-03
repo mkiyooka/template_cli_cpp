@@ -1,5 +1,6 @@
 #include "config/config_file_loader.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -242,11 +243,9 @@ std::string FindDefaultConfig() {
     };
 
     std::vector<std::string> found;
-    for (const auto &path : candidates) {
-        if (std::filesystem::exists(path)) {
-            found.push_back(path);
-        }
-    }
+    std::copy_if(candidates.begin(), candidates.end(), std::back_inserter(found), [](const std::string &path) {
+        return std::filesystem::exists(path);
+    });
 
     if (found.size() > 1) {
         std::string msg = "Multiple default config files found:";

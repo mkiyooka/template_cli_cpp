@@ -19,7 +19,13 @@
  */
 class DataRecorder {
 public:
+    DataRecorder() = default;
     virtual ~DataRecorder() = default;
+
+    DataRecorder(const DataRecorder &) = delete;
+    DataRecorder &operator=(const DataRecorder &) = delete;
+    DataRecorder(DataRecorder &&) = delete;
+    DataRecorder &operator=(DataRecorder &&) = delete;
 
     /**
      * @brief 出力を有効化する
