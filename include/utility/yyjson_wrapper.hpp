@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <cstdlib>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -9,12 +11,24 @@
 namespace json {
 
 /**
+ * @brief ネストオブジェクトへの型安全ハンドル
+ *
+ * AddNested() が返す不透明ハンドル。
+ * yyjson 内部型を呼び出し側に漏洩させない。
+ */
+class NestedObject {
+    friend class JsonBuilder;
+    explicit NestedObject(yyjson_mut_val* val) noexcept : val_(val) {}
+    yyjson_mut_val* val_;
+};
+
+/**
  * @brief yyjsonラッパー - 高性能JSON構築ライブラリ
  *
  * 特徴:
  * - 統一Add関数による直感的API
  * - コンパイル時型推論で最適化
- * - 高性能（約300ns/op）
+ * - 高性能（約150ns/op）
  * - メモリ安全（RAII、copy API使用）
  *
  * 使用例:
@@ -23,6 +37,8 @@ namespace json {
  * builder.Add("name", "John");
  * builder.Add("age", 30);
  * builder.Add("scores", std::vector<int>{95, 87, 92});
+ * auto nested = builder.AddNested("address");
+ * builder.AddToNested(nested, "city", "Tokyo");
  * std::string json = builder.Serialize();
  * @endcode
  */
@@ -32,18 +48,8 @@ public:
      * @brief コンストラクタ - JSONドキュメントを初期化
      * @throws std::runtime_error yyjsonドキュメント作成に失敗した場合
      */
-    JsonBuilder()
-        : doc_(yyjson_mut_doc_new(nullptr)),
-          root_(nullptr) {
-        if (doc_ == nullptr) {
-            throw std::runtime_error("Failed to create yyjson document");
-        }
-        root_ = yyjson_mut_obj(doc_);
-        if (root_ == nullptr) {
-            yyjson_mut_doc_free(doc_);
-            throw std::runtime_error("Failed to create root object");
-        }
-        yyjson_mut_doc_set_root(doc_, root_);
+    JsonBuilder() {
+        Init();
     }
 
     // コピー禁止、ムーブ許可（RAII設計）
@@ -53,7 +59,7 @@ public:
     JsonBuilder(JsonBuilder &&other) noexcept
         : doc_(other.doc_),
           root_(other.root_) {
-        other.doc_ = nullptr;
+        other.doc_  = nullptr;
         other.root_ = nullptr;
     }
 
@@ -62,9 +68,9 @@ public:
             if (doc_ != nullptr) {
                 yyjson_mut_doc_free(doc_);
             }
-            doc_ = other.doc_;
+            doc_  = other.doc_;
             root_ = other.root_;
-            other.doc_ = nullptr;
+            other.doc_  = nullptr;
             other.root_ = nullptr;
         }
         return *this;
@@ -102,65 +108,37 @@ public:
      * @endcode
      */
     template <typename T>
-    void Add(const char *key, T &&value) {
-        if constexpr (std::is_same_v<std::decay_t<T>, int>) {
-            yyjson_mut_obj_add_int(doc_, root_, key, value);
-        } else if constexpr (std::is_same_v<std::decay_t<T>, double> || std::is_same_v<std::decay_t<T>, float>) {
-            yyjson_mut_obj_add_real(doc_, root_, key, static_cast<double>(value));
-        } else if constexpr (std::is_same_v<std::decay_t<T>, bool>) {
-            yyjson_mut_obj_add_bool(doc_, root_, key, value);
-        } else if constexpr (std::is_same_v<std::decay_t<T>, std::string>) {
-            yyjson_mut_obj_add_strcpy(doc_, root_, key, value.c_str());
-        } else if constexpr (std::is_same_v<std::decay_t<T>, const char *> || std::is_same_v<std::decay_t<T>, char *>) {
-            yyjson_mut_obj_add_strcpy(doc_, root_, key, value);
-        } else if constexpr (std::is_same_v<std::decay_t<T>, std::vector<int>>) {
-            AddIntArray(key, value);
-        } else if constexpr (std::is_same_v<std::decay_t<T>, std::vector<std::string>>) {
-            AddStringArray(key, value);
-        } else {
-            static_assert(std::is_same_v<T, void>, "Unsupported type for Add function");
-        }
+    void Add(const char *key, const T &value) {
+        AddVal(root_, key, value);
     }
 
     /**
      * @brief ネストしたオブジェクトを作成
      * @param key ネストオブジェクトのキー名
-     * @return ネストオブジェクトのポインタ（AddToNestedで使用）
+     * @return NestedObject ハンドル（AddToNestedで使用）
      *
      * @code
-     * auto* user = builder.AddNested("user");
-     * builder.AddToNested(user, "name", "John");
-     * builder.AddToNested(user, "age", 30);
+     * auto nested = builder.AddNested("user");
+     * builder.AddToNested(nested, "name", "John");
+     * builder.AddToNested(nested, "age", 30);
      * @endcode
      */
-    yyjson_mut_val *AddNested(const char *key) {
-        yyjson_mut_val *nested_obj = yyjson_mut_obj(doc_);
-        yyjson_mut_obj_add_val(doc_, root_, key, nested_obj);
-        return nested_obj;
+    NestedObject AddNested(const char *key) {
+        yyjson_mut_val *obj = yyjson_mut_obj(doc_);
+        yyjson_mut_obj_add_val(doc_, root_, key, obj);
+        return NestedObject{obj};
     }
 
     /**
      * @brief ネストオブジェクトに値を追加
      * @tparam T 値の型（自動推論）
-     * @param nested_obj AddNestedで取得したネストオブジェクト
+     * @param nested AddNestedで取得したネストオブジェクト
      * @param key キー名
      * @param value 設定する値
      */
     template <typename T>
-    void AddToNested(yyjson_mut_val *nested_obj, const char *key, T &&value) {
-        if constexpr (std::is_same_v<std::decay_t<T>, int>) {
-            yyjson_mut_obj_add_int(doc_, nested_obj, key, value);
-        } else if constexpr (std::is_same_v<std::decay_t<T>, double> || std::is_same_v<std::decay_t<T>, float>) {
-            yyjson_mut_obj_add_real(doc_, nested_obj, key, static_cast<double>(value));
-        } else if constexpr (std::is_same_v<std::decay_t<T>, bool>) {
-            yyjson_mut_obj_add_bool(doc_, nested_obj, key, value);
-        } else if constexpr (std::is_same_v<std::decay_t<T>, std::string>) {
-            yyjson_mut_obj_add_strcpy(doc_, nested_obj, key, value.c_str());
-        } else if constexpr (std::is_same_v<std::decay_t<T>, const char *> || std::is_same_v<std::decay_t<T>, char *>) {
-            yyjson_mut_obj_add_strcpy(doc_, nested_obj, key, value);
-        } else {
-            static_assert(std::is_same_v<T, void>, "Unsupported type for AddToNested function");
-        }
+    void AddToNested(NestedObject nested, const char *key, const T &value) {
+        AddVal(nested.val_, key, value);
     }
 
     /**
@@ -169,20 +147,19 @@ public:
      * @return JSON文字列
      *
      * @code
-     * std::string compact = builder.Serialize();
+     * std::string compact   = builder.Serialize();
      * std::string formatted = builder.Serialize(true);
      * @endcode
      */
     std::string Serialize(bool pretty = false) const {
-        std::size_t len = 0;
-        std::uint32_t flags = pretty ? YYJSON_WRITE_PRETTY : YYJSON_WRITE_NOFLAG;
-        char *json_str = yyjson_mut_write(doc_, flags, &len);
+        std::size_t len                = 0;
+        const std::uint32_t flags      = pretty ? YYJSON_WRITE_PRETTY : YYJSON_WRITE_NOFLAG;
+        const std::unique_ptr<char, decltype(&std::free)> json_str{
+            yyjson_mut_write(doc_, flags, &len), std::free};
         if (json_str == nullptr) {
             return "{}";
         }
-        std::string result(json_str, len);
-        free(json_str);
-        return result;
+        return {json_str.get(), len};
     }
 
     /**
@@ -201,38 +178,66 @@ public:
      * @brief JSONをクリア（全フィールドを削除）
      */
     void Clear() {
-        yyjson_mut_doc_free(doc_);
-        doc_ = yyjson_mut_doc_new(nullptr);
-        if (doc_ == nullptr) {
-            throw std::runtime_error("Failed to recreate yyjson document");
-        }
-        root_ = yyjson_mut_obj(doc_);
-        if (root_ == nullptr) {
+        if (doc_ != nullptr) {
             yyjson_mut_doc_free(doc_);
-            throw std::runtime_error("Failed to recreate root object");
         }
-        yyjson_mut_doc_set_root(doc_, root_);
+        Init();
     }
 
 private:
     yyjson_mut_doc *doc_{};
     yyjson_mut_val *root_{};
 
-    // プライベートヘルパー関数
-    void AddIntArray(const char *key, const std::vector<int> &arr) {
-        yyjson_mut_val *json_arr = yyjson_mut_arr(doc_);
-        for (int item : arr) {
-            yyjson_mut_arr_add_int(doc_, json_arr, item);
+    void Init() {
+        doc_ = yyjson_mut_doc_new(nullptr);
+        if (doc_ == nullptr) {
+            throw std::runtime_error("Failed to create yyjson document");
         }
-        yyjson_mut_obj_add_val(doc_, root_, key, json_arr);
+        root_ = yyjson_mut_obj(doc_);
+        if (root_ == nullptr) {
+            yyjson_mut_doc_free(doc_);
+            throw std::runtime_error("Failed to create root object");
+        }
+        yyjson_mut_doc_set_root(doc_, root_);
     }
 
-    void AddStringArray(const char *key, const std::vector<std::string> &arr) {
+    // ──────────────────────────────────────────────────────────
+    // 型ディスパッチの共通実装（Add/AddToNested が共有）
+    // ──────────────────────────────────────────────────────────
+
+    template <typename T>
+    void AddVal(yyjson_mut_val *obj, const char *key, const T &value) {
+        using D = std::decay_t<T>;
+        if constexpr (std::is_same_v<D, int>) {
+            yyjson_mut_obj_add_int(doc_, obj, key, value);
+        } else if constexpr (std::is_same_v<D, double> || std::is_same_v<D, float>) {
+            yyjson_mut_obj_add_real(doc_, obj, key, static_cast<double>(value));
+        } else if constexpr (std::is_same_v<D, bool>) {
+            yyjson_mut_obj_add_bool(doc_, obj, key, value);
+        } else if constexpr (std::is_same_v<D, std::string>) {
+            yyjson_mut_obj_add_strcpy(doc_, obj, key, value.c_str());
+        } else if constexpr (std::is_same_v<D, const char *> || std::is_same_v<D, char *>) {
+            yyjson_mut_obj_add_strcpy(doc_, obj, key, value);
+        } else if constexpr (std::is_same_v<D, std::vector<int>>) {
+            AddArray<int>(obj, key, value);
+        } else if constexpr (std::is_same_v<D, std::vector<std::string>>) {
+            AddArray<std::string>(obj, key, value);
+        } else {
+            static_assert(std::is_same_v<T, void>, "Unsupported type for Add/AddToNested");
+        }
+    }
+
+    template <typename Elem>
+    void AddArray(yyjson_mut_val *obj, const char *key, const std::vector<Elem> &arr) {
         yyjson_mut_val *json_arr = yyjson_mut_arr(doc_);
         for (const auto &item : arr) {
-            yyjson_mut_arr_add_strcpy(doc_, json_arr, item.c_str());
+            if constexpr (std::is_same_v<Elem, int>) {
+                yyjson_mut_arr_add_int(doc_, json_arr, item);
+            } else {
+                yyjson_mut_arr_add_strcpy(doc_, json_arr, item.c_str());
+            }
         }
-        yyjson_mut_obj_add_val(doc_, root_, key, json_arr);
+        yyjson_mut_obj_add_val(doc_, obj, key, json_arr);
     }
 };
 

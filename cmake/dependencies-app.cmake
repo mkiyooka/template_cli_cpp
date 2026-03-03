@@ -35,6 +35,12 @@ add_external_package(nlohmann_json third_party/nlohmann_json-3.12.0
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
+add_external_package(yyjson third_party/yyjson-0.12.0
+    URL https://github.com/ibireme/yyjson/archive/refs/tags/0.12.0.tar.gz
+    URL_HASH SHA256=b16246f617b2a136c78d73e5e2647c6f1de1313e46678062985bdcf1f40bb75d
+)
+FetchContent_MakeAvailable(yyjson)
+
 # fkYAML - YAML parser (header-only)
 add_external_package(fkYAML third_party/fkYAML-0.4.2
     URL https://github.com/fktn-k/fkYAML/releases/download/v0.4.2/fkYAML.tgz
