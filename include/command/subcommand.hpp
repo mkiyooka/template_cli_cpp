@@ -15,4 +15,6 @@ void SetCallbackSubcommands(CLI::App &app);
 void SetGotSubcommands(CLI::App &app, SubcommandOptions &multiply_options, SubcommandOptions &divide_options);
 
 // got_subcommand方式の実行処理
-void ExecuteGotSubcommands(CLI::App &app, const SubcommandOptions &multiply_options, const SubcommandOptions &divide_options);
+void ExecuteGotSubcommands(
+    CLI::App &app, const SubcommandOptions &multiply_options, const SubcommandOptions &divide_options
+);

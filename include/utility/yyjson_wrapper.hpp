@@ -18,8 +18,9 @@ namespace json {
  */
 class NestedObject {
     friend class JsonBuilder;
-    explicit NestedObject(yyjson_mut_val* val) noexcept : val_(val) {}
-    yyjson_mut_val* val_;
+    explicit NestedObject(yyjson_mut_val *val) noexcept
+        : val_(val) {}
+    yyjson_mut_val *val_;
 };
 
 /**
@@ -48,9 +49,7 @@ public:
      * @brief コンストラクタ - JSONドキュメントを初期化
      * @throws std::runtime_error yyjsonドキュメント作成に失敗した場合
      */
-    JsonBuilder() {
-        Init();
-    }
+    JsonBuilder() { Init(); }
 
     // コピー禁止、ムーブ許可（RAII設計）
     JsonBuilder(const JsonBuilder &) = delete;
@@ -59,7 +58,7 @@ public:
     JsonBuilder(JsonBuilder &&other) noexcept
         : doc_(other.doc_),
           root_(other.root_) {
-        other.doc_  = nullptr;
+        other.doc_ = nullptr;
         other.root_ = nullptr;
     }
 
@@ -68,9 +67,9 @@ public:
             if (doc_ != nullptr) {
                 yyjson_mut_doc_free(doc_);
             }
-            doc_  = other.doc_;
+            doc_ = other.doc_;
             root_ = other.root_;
-            other.doc_  = nullptr;
+            other.doc_ = nullptr;
             other.root_ = nullptr;
         }
         return *this;
@@ -152,10 +151,9 @@ public:
      * @endcode
      */
     std::string Serialize(bool pretty = false) const {
-        std::size_t len                = 0;
-        const std::uint32_t flags      = pretty ? YYJSON_WRITE_PRETTY : YYJSON_WRITE_NOFLAG;
-        const std::unique_ptr<char, decltype(&std::free)> json_str{
-            yyjson_mut_write(doc_, flags, &len), std::free};
+        std::size_t len = 0;
+        const std::uint32_t flags = pretty ? YYJSON_WRITE_PRETTY : YYJSON_WRITE_NOFLAG;
+        const std::unique_ptr<char, decltype(&std::free)> json_str{yyjson_mut_write(doc_, flags, &len), std::free};
         if (json_str == nullptr) {
             return "{}";
         }

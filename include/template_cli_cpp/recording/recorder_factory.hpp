@@ -31,11 +31,8 @@ struct RecorderFactory {
      * @param name      spdlog 内部名（重複不可）
      * @param file_path 出力ファイルパス
      */
-    static std::unique_ptr<DataRecorder> MakeFile(
-        const std::string& name,
-        const std::string& file_path)
-    {
-        auto sink  = std::make_shared<spdlog::sinks::basic_file_sink_mt>(file_path);
+    static std::unique_ptr<DataRecorder> MakeFile(const std::string &name, const std::string &file_path) {
+        auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(file_path);
         auto inner = std::make_shared<spdlog::logger>(name, sink);
         return std::make_unique<SpdlogRecorder>(inner);
     }
@@ -43,7 +40,5 @@ struct RecorderFactory {
     /**
      * @brief 何も出力しないレコーダーを生成する（テスト・無効化用）
      */
-    static std::unique_ptr<DataRecorder> MakeNull() {
-        return std::make_unique<NullRecorder>();
-    }
+    static std::unique_ptr<DataRecorder> MakeNull() { return std::make_unique<NullRecorder>(); }
 };

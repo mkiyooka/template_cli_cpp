@@ -5,15 +5,7 @@
 /**
  * @brief ログレベル定義
  */
-enum class LogLevel : int {
-    Trace = 0,
-    Debug,
-    Info,
-    Warn,
-    Error,
-    Critical,
-    Off
-};
+enum class LogLevel : int { Trace = 0, Debug, Info, Warn, Error, Critical, Off };
 
 /**
  * @brief ロガーの共通インターフェース

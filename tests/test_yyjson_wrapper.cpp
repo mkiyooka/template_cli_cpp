@@ -9,9 +9,7 @@
 #include "utility/yyjson_wrapper.hpp"
 
 // JSON文字列をパースして検証するヘルパー
-static nlohmann::json Parse(const std::string &s) {
-    return nlohmann::json::parse(s);
-}
+static nlohmann::json Parse(const std::string &s) { return nlohmann::json::parse(s); }
 
 // ──────────────────────────────────────────────────────────────
 // フラットオブジェクト
@@ -147,7 +145,7 @@ TEST_CASE("JsonBuilder: nested object") {
 
     SUBCASE("multiple independent nested objects") {
         json::JsonBuilder b;
-        auto inputs  = b.AddNested("inputs");
+        auto inputs = b.AddNested("inputs");
         b.AddToNested(inputs, "x", 3.5);
         b.AddToNested(inputs, "n", 5);
         auto results = b.AddNested("results");
@@ -258,7 +256,7 @@ TEST_CASE("JsonBuilder: Serialize pretty") {
     json::JsonBuilder b;
     b.Add("key", "value");
     const std::string compact = b.Serialize(false);
-    const std::string pretty  = b.Serialize(true);
+    const std::string pretty = b.Serialize(true);
     // pretty は改行を含む
     CHECK(pretty.find('\n') != std::string::npos);
     // どちらも有効なJSON

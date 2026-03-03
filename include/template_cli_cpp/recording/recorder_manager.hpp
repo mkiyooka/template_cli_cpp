@@ -30,36 +30,32 @@ public:
      * @param key      モジュールを識別するキー
      * @param recorder レコーダーの所有権（shared_ptr）
      */
-    void RegisterRecorder(Key key, std::shared_ptr<DataRecorder> recorder) {
-        recorders_[key] = std::move(recorder);
-    }
+    void RegisterRecorder(Key key, std::shared_ptr<DataRecorder> recorder) { recorders_[key] = std::move(recorder); }
 
     /**
      * @brief キーに対応するレコーダーへの参照を返す
      * @throws std::out_of_range キーが未登録の場合
      */
-    DataRecorder& operator[](Key key) { return *recorders_.at(key); }
+    DataRecorder &operator[](Key key) { return *recorders_.at(key); }
 
     /**
      * @brief キーに対応するレコーダーへの const 参照を返す
      * @throws std::out_of_range キーが未登録の場合
      */
-    const DataRecorder& operator[](Key key) const { return *recorders_.at(key); }
+    const DataRecorder &operator[](Key key) const { return *recorders_.at(key); }
 
     /**
      * @brief 全レコーダーのバッファをフラッシュする
      */
     void FlushAll() {
-        for (auto& [key, rec] : recorders_) {
+        for (auto &[key, rec] : recorders_) {
             rec->Flush();
         }
     }
 
 private:
     struct KeyHash {
-        std::size_t operator()(Key k) const noexcept {
-            return std::hash<int>{}(static_cast<int>(k));
-        }
+        std::size_t operator()(Key k) const noexcept { return std::hash<int>{}(static_cast<int>(k)); }
     };
 
     std::unordered_map<Key, std::shared_ptr<DataRecorder>, KeyHash> recorders_;

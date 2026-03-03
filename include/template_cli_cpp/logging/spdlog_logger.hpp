@@ -23,9 +23,7 @@ public:
     explicit SpdlogLogger(std::shared_ptr<spdlog::logger> logger)
         : logger_(std::move(logger)) {}
 
-    void Log(LogLevel lvl, std::string_view msg) override {
-        logger_->log(ToSpdlogLevel(lvl), msg);
-    }
+    void Log(LogLevel lvl, std::string_view msg) override { logger_->log(ToSpdlogLevel(lvl), msg); }
 
     void set_level(LogLevel lvl) override {
         level_ = lvl;
@@ -40,13 +38,20 @@ private:
 
     static spdlog::level::level_enum ToSpdlogLevel(LogLevel lvl) {
         switch (lvl) {
-        case LogLevel::Trace:    return spdlog::level::trace;
-        case LogLevel::Debug:    return spdlog::level::debug;
-        case LogLevel::Info:     return spdlog::level::info;
-        case LogLevel::Warn:     return spdlog::level::warn;
-        case LogLevel::Error:    return spdlog::level::err;
-        case LogLevel::Critical: return spdlog::level::critical;
-        default:                 return spdlog::level::off;
+            case LogLevel::Trace:
+                return spdlog::level::trace;
+            case LogLevel::Debug:
+                return spdlog::level::debug;
+            case LogLevel::Info:
+                return spdlog::level::info;
+            case LogLevel::Warn:
+                return spdlog::level::warn;
+            case LogLevel::Error:
+                return spdlog::level::err;
+            case LogLevel::Critical:
+                return spdlog::level::critical;
+            default:
+                return spdlog::level::off;
         }
     }
 };

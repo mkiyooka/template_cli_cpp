@@ -58,7 +58,7 @@ public:
      * @endcode
      */
     template <typename... Args>
-    void Write(fmt::format_string<Args...> fmt_str, Args&&... args) {
+    void Write(fmt::format_string<Args...> fmt_str, Args &&...args) {
         if (IsEnabled()) {
             Output(fmt::format(fmt_str, std::forward<Args>(args)...));
         }

@@ -26,8 +26,7 @@
 class SpdlogRecorder : public DataRecorder {
 public:
     explicit SpdlogRecorder(std::shared_ptr<spdlog::logger> logger)
-        : logger_(std::move(logger))
-    {
+        : logger_(std::move(logger)) {
         logger_->set_pattern("%v");
         logger_->set_level(spdlog::level::off);
     }
@@ -36,9 +35,7 @@ public:
 
     void Disable() override { logger_->set_level(spdlog::level::off); }
 
-    bool IsEnabled() const override {
-        return logger_->level() != spdlog::level::off;
-    }
+    bool IsEnabled() const override { return logger_->level() != spdlog::level::off; }
 
     void Output(std::string_view msg) override { logger_->info(msg); }
 

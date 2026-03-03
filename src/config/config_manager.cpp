@@ -76,9 +76,7 @@ Config ConfigManager::Resolve(const std::string &explicit_config_path) {
 
 void ShowConfig(const Config &conf) {
     std::apply(
-        [&](auto &&...field) {
-            ([&] { fmt::print("{}: {}\n", field.config_key, conf.*field.member); }(), ...);
-        },
+        [&](auto &&...field) { ([&] { fmt::print("{}: {}\n", field.config_key, conf.*field.member); }(), ...); },
         kConfigSchema
     );
     for (const auto &p : conf.plugins) {

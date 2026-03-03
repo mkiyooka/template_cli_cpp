@@ -31,7 +31,7 @@ public:
     /**
      * @brief 蓄積されたログエントリを返す
      */
-    const std::vector<std::string>& entries() const { return entries_; }
+    const std::vector<std::string> &entries() const { return entries_; }
 
     /**
      * @brief 蓄積されたログエントリをクリアする

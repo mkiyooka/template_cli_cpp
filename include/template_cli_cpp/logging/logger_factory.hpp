@@ -28,10 +28,7 @@ struct LoggerFactory {
      * @param name   spdlog 内部名（重複不可）
      * @param level  初期ログレベル
      */
-    static std::unique_ptr<Logger> MakeConsole(
-        const std::string& name,
-        LogLevel level = LogLevel::Info)
-    {
+    static std::unique_ptr<Logger> MakeConsole(const std::string &name, LogLevel level = LogLevel::Info) {
         auto inner = spdlog::stdout_color_mt(name);
         auto logger = std::make_unique<SpdlogLogger>(inner);
         logger->set_level(level);
@@ -44,11 +41,8 @@ struct LoggerFactory {
      * @param file_path 出力ファイルパス
      * @param level     初期ログレベル
      */
-    static std::unique_ptr<Logger> MakeFile(
-        const std::string& name,
-        const std::string& file_path,
-        LogLevel level = LogLevel::Info)
-    {
+    static std::unique_ptr<Logger>
+    MakeFile(const std::string &name, const std::string &file_path, LogLevel level = LogLevel::Info) {
         auto inner = spdlog::basic_logger_mt(name, file_path);
         auto logger = std::make_unique<SpdlogLogger>(inner);
         logger->set_level(level);
@@ -58,7 +52,5 @@ struct LoggerFactory {
     /**
      * @brief 何も出力しないロガーを生成する（テスト・無効化用）
      */
-    static std::unique_ptr<Logger> MakeNull() {
-        return std::make_unique<NullLogger>();
-    }
+    static std::unique_ptr<Logger> MakeNull() { return std::make_unique<NullLogger>(); }
 };

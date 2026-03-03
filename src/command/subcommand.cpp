@@ -12,11 +12,17 @@ struct CallbackOptions {
 };
 
 // 実行関数群
-void ExecuteAdd(const CallbackOptions &options) { fmt::print("{} + {} = {}\n", options.a, options.b, options.a + options.b); }
+void ExecuteAdd(const CallbackOptions &options) {
+    fmt::print("{} + {} = {}\n", options.a, options.b, options.a + options.b);
+}
 
-void ExecuteSubtract(const CallbackOptions &options) { fmt::print("{} - {} = {}\n", options.a, options.b, options.a - options.b); }
+void ExecuteSubtract(const CallbackOptions &options) {
+    fmt::print("{} - {} = {}\n", options.a, options.b, options.a - options.b);
+}
 
-void ExecuteMultiply(const SubcommandOptions &options) { fmt::print("{} * {} = {}\n", options.a, options.b, options.a * options.b); }
+void ExecuteMultiply(const SubcommandOptions &options) {
+    fmt::print("{} * {} = {}\n", options.a, options.b, options.a * options.b);
+}
 
 void ExecuteDivide(const SubcommandOptions &options) {
     if (options.b == 0) {
@@ -63,7 +69,9 @@ void SetGotSubcommands(CLI::App &app, SubcommandOptions &multiply_options, Subco
 }
 
 // got_subcommand方式の実行処理
-void ExecuteGotSubcommands(CLI::App &app, const SubcommandOptions &multiply_options, const SubcommandOptions &divide_options) {
+void ExecuteGotSubcommands(
+    CLI::App &app, const SubcommandOptions &multiply_options, const SubcommandOptions &divide_options
+) {
     if (app.got_subcommand("multiply")) {
         ExecuteMultiply(multiply_options);
     } else if (app.got_subcommand("divide")) {
