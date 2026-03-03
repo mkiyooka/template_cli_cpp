@@ -32,3 +32,18 @@ add_test(
     NAME test_sut_example
     COMMAND $<TARGET_FILE:test_sut_example>
 )
+
+# yyjson_wrapper test
+add_executable(test_yyjson_wrapper
+    test_yyjson_wrapper.cpp
+)
+target_include_directories(test_yyjson_wrapper PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(test_yyjson_wrapper PRIVATE
+    yyjson
+    nlohmann_json::nlohmann_json
+    doctest::doctest
+)
+add_test(
+    NAME test_yyjson_wrapper
+    COMMAND $<TARGET_FILE:test_yyjson_wrapper>
+)

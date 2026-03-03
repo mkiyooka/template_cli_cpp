@@ -10,3 +10,14 @@ target_link_libraries(bench_logger PRIVATE
     spdlog::spdlog
     nanobench::nanobench
 )
+
+# JSON benchmark
+add_executable(bench_json
+    bench_json.cpp
+)
+target_include_directories(bench_json PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(bench_json PRIVATE
+    yyjson
+    nlohmann_json::nlohmann_json
+    nanobench::nanobench
+)
