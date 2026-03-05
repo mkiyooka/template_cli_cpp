@@ -15,6 +15,12 @@ enum class LogLevel : int { Trace = 0, Debug, Info, Warn, Error, Critical, Off }
  */
 class Logger {
 public:
+    Logger() = default;
+    Logger(const Logger &) = delete;
+    Logger &operator=(const Logger &) = delete;
+    Logger(Logger &&) = delete;
+    Logger &operator=(Logger &&) = delete;
+
     virtual ~Logger() = default;
 
     /**
@@ -27,12 +33,12 @@ public:
     /**
      * @brief 最小ログレベルを設定する
      */
-    virtual void set_level(LogLevel level) = 0;
+    virtual void SetLevel(LogLevel level) = 0;
 
     /**
      * @brief 現在のログレベルを返す
      */
-    virtual LogLevel level() const = 0;
+    virtual LogLevel Level() const = 0;
 
     /**
      * @brief 指定レベルが出力対象かを返す
@@ -44,5 +50,5 @@ public:
      * }
      * @endcode
      */
-    bool ShouldLog(LogLevel lvl) const { return lvl >= level(); }
+    bool ShouldLog(LogLevel lvl) const { return lvl >= Level(); }
 };

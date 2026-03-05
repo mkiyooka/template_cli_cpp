@@ -27,20 +27,20 @@ template <typename Key>
 class AppOutput {
 public:
     AppOutput(Logger &logger, RecorderManager<Key> &recorders)
-        : logger_(logger),
-          recorders_(recorders) {}
+        : logger_(&logger),
+          recorders_(&recorders) {}
 
     /**
      * @brief 診断ロガーへの参照を返す
      */
-    Logger &logger() { return logger_; }
+    Logger &GetLogger() { return *logger_; }
 
     /**
      * @brief レコーダーマネージャーへの参照を返す
      */
-    RecorderManager<Key> &recorders() { return recorders_; }
+    RecorderManager<Key> &GetRecorders() { return *recorders_; }
 
 private:
-    Logger &logger_;
-    RecorderManager<Key> &recorders_;
+    Logger *logger_;
+    RecorderManager<Key> *recorders_;
 };

@@ -25,12 +25,12 @@ public:
 
     void Log(LogLevel lvl, std::string_view msg) override { logger_->log(ToSpdlogLevel(lvl), msg); }
 
-    void set_level(LogLevel lvl) override {
+    void SetLevel(LogLevel lvl) override {
         level_ = lvl;
         logger_->set_level(ToSpdlogLevel(lvl));
     }
 
-    LogLevel level() const override { return level_; }
+    LogLevel Level() const override { return level_; }
 
 private:
     std::shared_ptr<spdlog::logger> logger_;

@@ -48,8 +48,8 @@ std::unique_ptr<DataRecorder> MakeConsoleRecorder(const std::string &name) {
 // - 入力変数は Logger で診断ログとして出力
 // - 計算結果は JsonBuilder で JSON を構築し DataRecorder で出力
 void RunOutputSample(AppOutput<OutputModule> &out) {
-    Logger &logger = out.logger();
-    DataRecorder &recorder = out.recorders()[OutputModule::kResults];
+    Logger &logger = out.GetLogger();
+    DataRecorder &recorder = out.GetRecorders()[OutputModule::kResults];
 
     // --- 入力パラメータ ---
     const double input = 3.5;

@@ -31,7 +31,7 @@ struct LoggerFactory {
     static std::unique_ptr<Logger> MakeConsole(const std::string &name, LogLevel level = LogLevel::Info) {
         auto inner = spdlog::stdout_color_mt(name);
         auto logger = std::make_unique<SpdlogLogger>(inner);
-        logger->set_level(level);
+        logger->SetLevel(level);
         return logger;
     }
 
@@ -45,7 +45,7 @@ struct LoggerFactory {
     MakeFile(const std::string &name, const std::string &file_path, LogLevel level = LogLevel::Info) {
         auto inner = spdlog::basic_logger_mt(name, file_path);
         auto logger = std::make_unique<SpdlogLogger>(inner);
-        logger->set_level(level);
+        logger->SetLevel(level);
         return logger;
     }
 

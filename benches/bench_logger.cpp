@@ -14,19 +14,17 @@
 
 namespace {
 
-constexpr const char* kSpdlogSyncFile  = "/tmp/bench_spdlog_sync.log";
-constexpr const char* kSpdlogAsyncFile = "/tmp/bench_spdlog_async.log";
+constexpr const char *kSpdlogSyncFile = "/tmp/bench_spdlog_sync.log";
+constexpr const char *kSpdlogAsyncFile = "/tmp/bench_spdlog_async.log";
 
 // DI アダプター用ファイル
-constexpr const char* kDiSpdlogSFile = "/tmp/bench_di_spdlog_sync.log";
-constexpr const char* kDiSpdlogAFile = "/tmp/bench_di_spdlog_async.log";
+constexpr const char *kDiSpdlogSFile = "/tmp/bench_di_spdlog_sync.log";
+constexpr const char *kDiSpdlogAFile = "/tmp/bench_di_spdlog_async.log";
 
 constexpr int kBatchSize = 1000;
 
 // Logger 経由でログを1件出力する（DI の呼び出し側を模擬）
-void WriteOne(Logger& logger, std::string_view msg) {
-    logger.Log(LogLevel::Info, msg);
-}
+void WriteOne(Logger &logger, std::string_view msg) { logger.Log(LogLevel::Info, msg); }
 
 } // namespace
 
@@ -39,8 +37,7 @@ int main() {
     spdlog_sync->set_pattern("%v");
 
     spdlog::init_thread_pool(8192, 1);
-    auto spdlog_async =
-        spdlog::basic_logger_mt<spdlog::async_factory>("spdlog_async", kSpdlogAsyncFile);
+    auto spdlog_async = spdlog::basic_logger_mt<spdlog::async_factory>("spdlog_async", kSpdlogAsyncFile);
     spdlog_async->set_level(spdlog::level::info);
     spdlog_async->set_pattern("%v");
 
@@ -55,17 +52,16 @@ int main() {
     auto di_spdlog_sync_inner = spdlog::basic_logger_mt("di_spdlog_sync", kDiSpdlogSFile);
     di_spdlog_sync_inner->set_pattern("%v");
     SpdlogLogger di_spdlog_sync(di_spdlog_sync_inner);
-    di_spdlog_sync.set_level(LogLevel::Info);
+    di_spdlog_sync.SetLevel(LogLevel::Info);
 
-    auto di_spdlog_async_inner =
-        spdlog::basic_logger_mt<spdlog::async_factory>("di_spdlog_async", kDiSpdlogAFile);
+    auto di_spdlog_async_inner = spdlog::basic_logger_mt<spdlog::async_factory>("di_spdlog_async", kDiSpdlogAFile);
     di_spdlog_async_inner->set_pattern("%v");
     SpdlogLogger di_spdlog_async(di_spdlog_async_inner);
-    di_spdlog_async.set_level(LogLevel::Info);
+    di_spdlog_async.SetLevel(LogLevel::Info);
 
     NullLogger null_logger;
     TestLogger test_logger;
-    test_logger.set_level(LogLevel::Info);
+    test_logger.SetLevel(LogLevel::Info);
 
     // ──────────────────────────────────────────────────────────────
     // ベンチマーク
@@ -80,9 +76,7 @@ int main() {
     // ════════════════════════════════════════════════════════════════
 
     bench.minEpochIterations(100000);
-    bench.run("spdlog  sync  [latency:direct] 1 msg", [&] {
-        spdlog_sync->info("Benchmark message {}", 42);
-    });
+    bench.run("spdlog  sync  [latency:direct] 1 msg", [&] { spdlog_sync->info("Benchmark message {}", 42); });
 
     bench.minEpochIterations(1000);
     bench.run("spdlog  async [latency:direct] 1 msg (enqueue + flush)", [&] {
@@ -97,9 +91,7 @@ int main() {
     // ════════════════════════════════════════════════════════════════
 
     bench.minEpochIterations(100000);
-    bench.run("NullLogger      [latency:DI   ] 1 msg (no-op)", [&] {
-        WriteOne(null_logger, "Benchmark message 42");
-    });
+    bench.run("NullLogger      [latency:DI   ] 1 msg (no-op)", [&] { WriteOne(null_logger, "Benchmark message 42"); });
 
     bench.minEpochIterations(1300000);
     bench.run("TestLogger      [latency:DI   ] 1 msg (memory append)", [&] {
@@ -123,77 +115,58 @@ int main() {
     // ════════════════════════════════════════════════════════════════
 
     bench.batch(kBatchSize).minEpochIterations(100);
-    bench.run(
-        "spdlog  sync  [throughput:direct] batch " + std::to_string(kBatchSize) + " msgs + flush",
-        [&] {
-            for (int i = 0; i < kBatchSize; ++i) {
-                spdlog_sync->info("Batch message {}", i);
-            }
-            spdlog_sync->flush();
+    bench.run("spdlog  sync  [throughput:direct] batch " + std::to_string(kBatchSize) + " msgs + flush", [&] {
+        for (int i = 0; i < kBatchSize; ++i) {
+            spdlog_sync->info("Batch message {}", i);
         }
-    );
+        spdlog_sync->flush();
+    });
 
     bench.minEpochIterations(3000);
-    bench.run(
-        "spdlog  async [throughput:direct] batch " + std::to_string(kBatchSize) + " msgs + flush",
-        [&] {
-            for (int i = 0; i < kBatchSize; ++i) {
-                spdlog_async->info("Batch message {}", i);
-            }
-            spdlog_async->flush();
+    bench.run("spdlog  async [throughput:direct] batch " + std::to_string(kBatchSize) + " msgs + flush", [&] {
+        for (int i = 0; i < kBatchSize; ++i) {
+            spdlog_async->info("Batch message {}", i);
         }
-    );
+        spdlog_async->flush();
+    });
 
     // ════════════════════════════════════════════════════════════════
     // セクション4: スループット — Logger 経由（DI）
     // ════════════════════════════════════════════════════════════════
 
     bench.minEpochIterations(100);
-    bench.run(
-        "NullLogger      [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (no-op)",
-        [&] {
-            for (int i = 0; i < kBatchSize; ++i) {
-                WriteOne(null_logger, "Batch message");
-            }
+    bench.run("NullLogger      [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (no-op)", [&] {
+        for (int i = 0; i < kBatchSize; ++i) {
+            WriteOne(null_logger, "Batch message");
         }
-    );
+    });
 
-    bench.run(
-        "TestLogger      [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (memory)",
-        [&] {
-            test_logger.clear();
-            for (int i = 0; i < kBatchSize; ++i) {
-                WriteOne(test_logger, "Batch message");
-            }
+    bench.run("TestLogger      [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (memory)", [&] {
+        test_logger.clear();
+        for (int i = 0; i < kBatchSize; ++i) {
+            WriteOne(test_logger, "Batch message");
         }
-    );
+    });
 
     bench.minEpochIterations(100);
-    bench.run(
-        "SpdlogLogger    [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (sync + flush)",
-        [&] {
-            for (int i = 0; i < kBatchSize; ++i) {
-                WriteOne(di_spdlog_sync, "Batch message");
-            }
-            di_spdlog_sync_inner->flush();
+    bench.run("SpdlogLogger    [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (sync + flush)", [&] {
+        for (int i = 0; i < kBatchSize; ++i) {
+            WriteOne(di_spdlog_sync, "Batch message");
         }
-    );
+        di_spdlog_sync_inner->flush();
+    });
 
     bench.minEpochIterations(100);
-    bench.run(
-        "SpdlogLogger    [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (async + flush)",
-        [&] {
-            for (int i = 0; i < kBatchSize; ++i) {
-                WriteOne(di_spdlog_async, "Batch message");
-            }
-            di_spdlog_async_inner->flush();
+    bench.run("SpdlogLogger    [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (async + flush)", [&] {
+        for (int i = 0; i < kBatchSize; ++i) {
+            WriteOne(di_spdlog_async, "Batch message");
         }
-    );
+        di_spdlog_async_inner->flush();
+    });
 
     spdlog::drop_all();
 
-    for (const char* f :
-         {kSpdlogSyncFile, kSpdlogAsyncFile, kDiSpdlogSFile, kDiSpdlogAFile}) {
+    for (const char *f : {kSpdlogSyncFile, kSpdlogAsyncFile, kDiSpdlogSFile, kDiSpdlogAFile}) {
         std::filesystem::remove(std::filesystem::path{f});
     }
 
