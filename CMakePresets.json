@@ -35,6 +35,17 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
+        },
+        {
+            "name": "coverage",
+            "displayName": "Coverage Build",
+            "description": "Debug build with source-based coverage instrumentation (clang)",
+            "inherits": "base",
+            "binaryDir": "${sourceDir}/build-coverage",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "ENABLE_COVERAGE": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -49,6 +60,10 @@
         {
             "name": "relwithdebinfo",
             "configurePreset": "relwithdebinfo"
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage"
         }
     ],
     "testPresets": [
@@ -63,6 +78,10 @@
         {
             "name": "relwithdebinfo",
             "configurePreset": "relwithdebinfo"
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage"
         }
     ]
 }

@@ -95,6 +95,9 @@ add_custom_target(copy_compile_commands ALL
 
 include_directories(include)
 
+# カバレッジフラグ（add_subdirectory より前に設定する必要がある）
+include(cmake/coverage-flags.cmake)
+
 # サードパーティライブラリの導入
 include(FetchContent)
 include(cmake/local-or-fetch.cmake)
@@ -134,6 +137,9 @@ add_subdirectory(benches)
 
 # カスタムターゲット
 include(cmake/custom-targets.cmake)
+
+# カバレッジ
+include(cmake/coverage.cmake)
 
 # コード品質ツール
 include(cmake/quality-setup.cmake)
