@@ -101,13 +101,13 @@ int RunCli(int argc, char *argv[]) {
     config::ConfigManager config_manager;
     config_manager.RegisterOptions(app);
 
+    Config config;  // CLI サブコマンドオプションのバインド先
+
     // callback方式のサブコマンド (add, subtract)
-    SetCallbackSubcommands(app);
+    SetCallbackSubcommands(app, config);
 
     // got_subcommand方式のサブコマンド (multiply, divide)
-    SubcommandOptions multiply_options;
-    SubcommandOptions divide_options;
-    SetGotSubcommands(app, multiply_options, divide_options);
+    SetGotSubcommands(app, config);
 
     try {
         app.parse(argc, argv);
@@ -116,10 +116,22 @@ int RunCli(int argc, char *argv[]) {
     }
 
     // got_subcommand方式のサブコマンド実行
-    ExecuteGotSubcommands(app, multiply_options, divide_options);
+    ExecuteGotSubcommands(app, config);
 
-    // 設定の解決と表示
-    const Config config = config_manager.Resolve(config_file);
+    // 設定の解決（title, value, plugins, subcommands をファイル・CLIスキーマで解決）
+    Config resolved = config_manager.Resolve(config_file);
+
+    // サブコマンドが CLI から指定されていれば config の値を優先、未指定なら resolved の値を使う
+    if (!app.got_subcommand("add")) { config.add = resolved.add; }
+    if (!app.got_subcommand("subtract")) { config.subtract = resolved.subtract; }
+    if (!app.got_subcommand("multiply")) { config.multiply = resolved.multiply; }
+    if (!app.got_subcommand("divide")) { config.divide = resolved.divide; }
+
+    // スキーマ管理フィールドは常に resolved から使う
+    config.title = resolved.title;
+    config.value = resolved.value;
+    config.plugins = resolved.plugins;
+
     config::ShowConfig(config);
 
     // 出力サンプル: Logger でログ出力、DataRecorder で JSON 結果を出力

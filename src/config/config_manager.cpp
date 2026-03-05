@@ -53,7 +53,11 @@ Config ConfigManager::Resolve(const std::string &explicit_config_path) {
 
     // ファイル値で上書き (デフォルト < ファイル)
     std::apply([&](auto &&...field) { ((result.*field.member = file_values.*field.member), ...); }, kConfigSchema);
-    result.plugins = file_values.plugins;
+    result.plugins   = file_values.plugins;
+    result.add       = file_values.add;
+    result.subtract  = file_values.subtract;
+    result.multiply  = file_values.multiply;
+    result.divide    = file_values.divide;
 
     // CLI値で上書き (ファイル < CLI)
     std::size_t idx = 0;
@@ -82,6 +86,13 @@ void ShowConfig(const Config &conf) {
     for (const auto &p : conf.plugins) {
         fmt::print("plugin: file={}, number={}\n", p.file, p.number);
     }
+    const auto print_sub = [&](const char *name, const SubcommandConfig &sub) {
+        fmt::print("subcommands.{}: a={}, b={}\n", name, sub.a, sub.b);
+    };
+    print_sub("add",      conf.add);
+    print_sub("subtract", conf.subtract);
+    print_sub("multiply", conf.multiply);
+    print_sub("divide",   conf.divide);
 }
 
 } // namespace config

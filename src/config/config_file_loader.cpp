@@ -21,6 +21,22 @@ namespace config {
 namespace {
 
 // ──────────────────────────────────────────────
+// サブコマンドマッピング
+// ──────────────────────────────────────────────
+
+struct SubcommandMapping {
+    const char *key;
+    SubcommandConfig Config::*member;
+};
+
+constexpr SubcommandMapping kSubcommandMappings[] = {
+    {"add",      &Config::add     },
+    {"subtract", &Config::subtract},
+    {"multiply", &Config::multiply},
+    {"divide",   &Config::divide  },
+};
+
+// ──────────────────────────────────────────────
 // TOML ユーティリティ
 // ──────────────────────────────────────────────
 
@@ -72,6 +88,16 @@ void LoadFromToml(const std::string &file_path, Config &conf) {
                 plugin.file = (*table)["file"].value_or(std::string{});
                 plugin.number = (*table)["number"].value_or(std::uint64_t{0});
                 conf.plugins.push_back(plugin);
+            }
+        }
+    }
+
+    // subcommands セクション
+    if (const auto *subs = tbl["subcommands"].as_table()) {
+        for (const auto &mapping : kSubcommandMappings) {
+            if (const auto *sub_tbl = (*subs)[mapping.key].as_table()) {
+                (conf.*mapping.member).a = (*sub_tbl)["a"].value_or(0);
+                (conf.*mapping.member).b = (*sub_tbl)["b"].value_or(0);
             }
         }
     }

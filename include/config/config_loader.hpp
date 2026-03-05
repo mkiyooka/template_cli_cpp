@@ -9,8 +9,17 @@ struct PluginConfig {
     std::uint64_t number = 0;
 };
 
+struct SubcommandConfig {
+    int a = 0;
+    int b = 0;
+};
+
 struct Config {
     std::string title = "title";
     std::uint64_t value = 10;
     std::vector<PluginConfig> plugins;
+    SubcommandConfig add;
+    SubcommandConfig subtract;
+    SubcommandConfig multiply;
+    SubcommandConfig divide;
 };

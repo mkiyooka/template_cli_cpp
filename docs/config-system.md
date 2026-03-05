@@ -307,3 +307,22 @@ number = 1
 file = "b.so"
 number = 2
 ```
+
+### サブコマンド別設定フィールドの扱い
+
+`SubcommandConfig` のような複合型はスキーマ管理の対象外とし、
+`config_file_loader.cpp` 内で個別に実装する。
+CLI 引数との統合は `cli.cpp` の `RunCli` 関数内で行う。
+
+優先度解決の仕組み:
+
+1. CLI11 がサブコマンド引数を `Config` の `add.a`, `add.b` 等に直接書き込む
+2. `ConfigManager::Resolve()` が設定ファイル値（`[subcommands.add]` セクション）を読み込む
+3. CLI でサブコマンドが指定された場合は `cli.cpp` で CLI 値を優先、未指定なら設定ファイル値を適用する
+
+```toml
+# TOML での記述例
+[subcommands.add]
+a = 10
+b = 5
+```

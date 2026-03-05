@@ -1,80 +1,68 @@
-#include <memory>
-
 #include <CLI/CLI.hpp>
 #include <fmt/base.h>
 
 #include "command/subcommand.hpp"
 
-// Callback方式用の構造体
-struct CallbackOptions {
-    int a;
-    int b;
-};
-
 // 実行関数群
-void ExecuteAdd(const CallbackOptions &options) {
-    fmt::print("{} + {} = {}\n", options.a, options.b, options.a + options.b);
+void ExecuteAdd(const SubcommandConfig &config) {
+    fmt::print("{} + {} = {}\n", config.a, config.b, config.a + config.b);
 }
 
-void ExecuteSubtract(const CallbackOptions &options) {
-    fmt::print("{} - {} = {}\n", options.a, options.b, options.a - options.b);
+void ExecuteSubtract(const SubcommandConfig &config) {
+    fmt::print("{} - {} = {}\n", config.a, config.b, config.a - config.b);
 }
 
-void ExecuteMultiply(const SubcommandOptions &options) {
-    fmt::print("{} * {} = {}\n", options.a, options.b, options.a * options.b);
+void ExecuteMultiply(const SubcommandConfig &config) {
+    fmt::print("{} * {} = {}\n", config.a, config.b, config.a * config.b);
 }
 
-void ExecuteDivide(const SubcommandOptions &options) {
-    if (options.b == 0) {
+void ExecuteDivide(const SubcommandConfig &config) {
+    if (config.b == 0) {
         fmt::print("Error: Division by zero\n");
         return;
     }
-    fmt::print("{} / {} = {}\n", options.a, options.b, static_cast<double>(options.a) / options.b);
+    fmt::print("{} / {} = {}\n", config.a, config.b, static_cast<double>(config.a) / config.b);
 }
 
 // callback方式のサブコマンド設定
-void SetCallbackSubcommands(CLI::App &app) {
+void SetCallbackSubcommands(CLI::App &app, Config &config) {
     // add subcommand (callback方式)
     {
-        auto add_options = std::make_shared<CallbackOptions>();
         auto *subcommand = app.add_subcommand("add", "Addition operation");
-        subcommand->add_option("a", add_options->a, "First operand")->required();
-        subcommand->add_option("b", add_options->b, "Second operand")->required();
-        subcommand->callback([add_options]() { ExecuteAdd(*add_options); });
+        subcommand->add_option("a", config.add.a, "First operand")->required();
+        subcommand->add_option("b", config.add.b, "Second operand")->required();
+        subcommand->callback([&config]() { ExecuteAdd(config.add); });
     }
     // subtract subcommand (callback方式)
     {
-        auto subtract_options = std::make_shared<CallbackOptions>();
         auto *subcommand = app.add_subcommand("subtract", "Subtraction operation");
-        subcommand->add_option("a", subtract_options->a, "First operand")->required();
-        subcommand->add_option("b", subtract_options->b, "Second operand")->required();
-        subcommand->callback([subtract_options]() { ExecuteSubtract(*subtract_options); });
+        subcommand->add_option("a", config.subtract.a, "First operand")->required();
+        subcommand->add_option("b", config.subtract.b, "Second operand")->required();
+        subcommand->callback([&config]() { ExecuteSubtract(config.subtract); });
     }
 }
 
 // got_subcommand方式のサブコマンド設定
-void SetGotSubcommands(CLI::App &app, SubcommandOptions &multiply_options, SubcommandOptions &divide_options) {
+void SetGotSubcommands(CLI::App &app, Config &config) {
     // multiply subcommand (got_subcommand方式)
     {
         auto *subcommand = app.add_subcommand("multiply", "Multiplication operation");
-        subcommand->add_option("a", multiply_options.a, "First operand")->required();
-        subcommand->add_option("b", multiply_options.b, "Second operand")->required();
+        subcommand->add_option("a", config.multiply.a, "First operand")->required();
+        subcommand->add_option("b", config.multiply.b, "Second operand")->required();
     }
     // divide subcommand (got_subcommand方式)
     {
         auto *subcommand = app.add_subcommand("divide", "Division operation");
-        subcommand->add_option("a", divide_options.a, "First operand")->required();
-        subcommand->add_option("b", divide_options.b, "Second operand")->required();
+        subcommand->add_option("a", config.divide.a, "First operand")->required();
+        subcommand->add_option("b", config.divide.b, "Second operand")->required();
     }
 }
 
 // got_subcommand方式の実行処理
-void ExecuteGotSubcommands(
-    CLI::App &app, const SubcommandOptions &multiply_options, const SubcommandOptions &divide_options
-) {
+void ExecuteGotSubcommands(CLI::App &app, const Config &config) {
     if (app.got_subcommand("multiply")) {
-        ExecuteMultiply(multiply_options);
+        ExecuteMultiply(config.multiply);
     } else if (app.got_subcommand("divide")) {
-        ExecuteDivide(divide_options);
+        ExecuteDivide(config.divide);
     }
 }

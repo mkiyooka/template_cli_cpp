@@ -8,3 +8,16 @@ plugin:
     number: 15
   - file: fileC.yaml
     number: 20
+subcommands:
+  add:
+    a: 10
+    b: 5
+  subtract:
+    a: 20
+    b: 8
+  multiply:
+    a: 3
+    b: 7
+  divide:
+    a: 100
+    b: 4

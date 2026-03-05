@@ -169,3 +169,55 @@ number = 1
 file = "b.so"
 number = 2
 ```
+
+---
+
+## サブコマンド別設定
+
+各サブコマンド（`add`, `subtract`, `multiply`, `divide`）には、
+設定ファイルでデフォルトのオペランドを指定できる。
+
+### TOML
+
+```toml
+[subcommands.add]
+a = 10
+b = 5
+
+[subcommands.multiply]
+a = 3
+b = 7
+```
+
+### JSONC
+
+```json
+{
+    "subcommands": {
+        "add":      { "a": 10, "b": 5 },
+        "multiply": { "a": 3,  "b": 7 }
+    }
+}
+```
+
+### YAML
+
+```yaml
+subcommands:
+  add:
+    a: 10
+    b: 5
+  multiply:
+    a: 3
+    b: 7
+```
+
+### 優先度
+
+```text
+CLI 引数 > 設定ファイルの subcommands 値 > デフォルト値 (0)
+```
+
+サブコマンドを CLI で指定した場合（例: `./build/cmd add 3 4`）、
+CLI の値が使われ、設定ファイルの値は無視される。
+サブコマンドが指定されなかった場合は設定ファイルの値が使われる。
