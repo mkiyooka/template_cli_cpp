@@ -36,24 +36,32 @@ public:
     void RegisterOptions(CLI::App &app);
 
     /**
-     * @brief 設定を優先度に従って解決して返す
+     * @brief スキーマ定義フィールドを優先度に従って解決して返す
+     *
+     * スキーマ (config_schema.hpp) に定義されたフィールドのみを解決する。
+     * plugins や SubcommandConfig などスキーマ外フィールドは GetFileValues() で取得すること。
      *
      * @param explicit_config_path -c/--config で指定されたパス (空文字列の場合はデフォルト探索)
-     * @return 解決済みのConfig
+     * @return スキーマフィールドが解決済みの Config
      * @throws std::runtime_error 複数のデフォルト設定ファイルが存在する場合
      * @throws std::runtime_error 設定ファイルのパースに失敗した場合
      */
     Config Resolve(const std::string &explicit_config_path);
 
+    /**
+     * @brief 設定ファイルから読み込んだ生の値を返す
+     *
+     * Resolve() 呼び出し後に有効になる。
+     * スキーマ外フィールド (plugins, SubcommandConfig 等) をユーザ側でマージするために使用する。
+     *
+     * @return 設定ファイルから読み込んだ Config（ファイル未指定時はデフォルト値）
+     */
+    const Config &GetFileValues() const { return file_values_; }
+
 private:
     Config cli_values_;         ///< CLI11のパース結果書き込み先
+    Config file_values_;        ///< 設定ファイルから読み込んだ値（Resolve() 後に有効）
     std::vector<bool> cli_set_; ///< 各スキーマフィールドがCLIで明示指定されたか
 };
-
-/**
- * @brief Configの内容を標準出力に表示する
- * @param conf 表示するConfig
- */
-void ShowConfig(const Config &conf);
 
 } // namespace config

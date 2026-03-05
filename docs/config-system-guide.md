@@ -34,7 +34,7 @@ inline constexpr auto kConfigSchema = std::make_tuple(
 
 - CLI11 への `--logging.level` オプション登録
 - TOML / JSONC / YAML の `logging.level` キーからの読み込み
-- `ShowConfig` での表示
+- `cli.cpp` の `ShowConfig` での表示（`kConfigSchema` をループするため自動対応）
 
 ### 3. アプリに組み込む
 
@@ -51,7 +51,12 @@ mgr.RegisterOptions(app);   // スキーマ由来の全オプションを登録
 
 app.parse(argc, argv);
 
-Config conf = mgr.Resolve(config_file);  // 優先度解決
+// スキーマフィールドを解決（CLI引数 > 設定ファイル > デフォルト値）
+Config conf = mgr.Resolve(config_file);
+
+// スキーマ外フィールド（plugins 等）はファイルの生値から取得
+const Config &file_vals = mgr.GetFileValues();
+conf.plugins = file_vals.plugins;
 ```
 
 ### 4. Config の値を使う

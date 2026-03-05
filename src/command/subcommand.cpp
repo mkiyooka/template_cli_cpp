@@ -3,6 +3,16 @@
 
 #include "command/subcommand.hpp"
 
+// サブコマンドマッピング（config_file_loader.cpp から参照される）
+// サブコマンドを追加・変更する場合はここと下の Set*Subcommands を修正する
+const SubcommandMapping kSubcommandMappings[] = {
+    {     "add",      &Config::add},
+    {"subtract", &Config::subtract},
+    {"multiply", &Config::multiply},
+    {  "divide",   &Config::divide},
+};
+const std::size_t kSubcommandMappingCount = std::size(kSubcommandMappings);
+
 // 実行関数群
 void ExecuteAdd(const SubcommandConfig &config) {
     fmt::print("{} + {} = {}\n", config.a, config.b, config.a + config.b);

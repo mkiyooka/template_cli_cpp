@@ -103,20 +103,24 @@ Error: Multiple default config files found: config/default.toml config/default.j
 ```mermaid
 graph LR
     subgraph include/config/
-        A["config_loader.hpp\nConfig / PluginConfig 構造体"]
+        A["config_loader.hpp\nConfig / PluginConfig / SubcommandMapping 構造体"]
         B["config_schema.hpp\nFieldDescriptor / kConfigSchema"]
         C["config_file_loader.hpp\nLoadFromFile / FindDefaultConfig"]
-        D["config_manager.hpp\nConfigManager / ShowConfig"]
+        D["config_manager.hpp\nConfigManager"]
     end
     subgraph src/config/
         E["config_loader.cpp\n（スタブ）"]
         F["config_file_loader.cpp\nTOML / JSONC / YAML 実装"]
         G["config_manager.cpp\nConfigManager 実装"]
     end
+    subgraph src/command/
+        H["subcommand.cpp\nkSubcommandMappings 実体定義"]
+    end
     B --> F
     B --> G
     A --> B
     C --> G
+    A --> H
 ```
 
 ### FieldDescriptor テンプレート
@@ -166,12 +170,18 @@ inline constexpr auto kConfigSchema = std::make_tuple(
 class ConfigManager {
 public:
     void RegisterOptions(CLI::App& app);
-    Config Resolve(const std::string& explicit_config_path);
+    Config Resolve(const std::string& explicit_config_path); // スキーマフィールドのみ解決
+    const Config& GetFileValues() const;                     // ファイルの生値（スキーマ外フィールド取得用）
 private:
     Config cli_values_;         // CLI11のパース結果書き込み先
+    Config file_values_;        // 設定ファイルから読み込んだ値（Resolve() 後に有効）
     std::vector<bool> cli_set_; // 各フィールドがCLIで明示指定されたか
 };
 ```
+
+`Resolve()` はスキーマ定義フィールド（`kConfigSchema` に列挙されたもの）のみを解決して返す。
+`plugins` や `SubcommandConfig` などスキーマ外の複合型フィールドは `GetFileValues()` で取得し、
+呼び出し元（`cli.cpp`）でマージする。
 
 `cli_values_` はスキーマサイズ分のフィールドを持つ `Config`。
 `cli_set_` はどのフィールドが実際にCLIで指定されたかを記録するフラグ配列。
@@ -232,16 +242,17 @@ std::apply(
 );
 ```
 
-#### ShowConfig への適用
+#### 設定表示（ShowConfig）への適用
 
 スキーマを参照するため、新しいフィールドを追加すると表示も自動的に増える。
+この関数はユーザコードの `cli.cpp` に定義する（`config_manager` の責務外）。
 
 ```cpp
 std::apply(
     [&](auto &&...field) {
         ([&] { fmt::print("{}: {}\n", field.config_key, conf.*field.member); }(), ...);
     },
-    kConfigSchema
+    config::kConfigSchema
 );
 ```
 
@@ -310,15 +321,27 @@ number = 2
 
 ### サブコマンド別設定フィールドの扱い
 
-`SubcommandConfig` のような複合型はスキーマ管理の対象外とし、
-`config_file_loader.cpp` 内で個別に実装する。
-CLI 引数との統合は `cli.cpp` の `RunCli` 関数内で行う。
+`SubcommandConfig` のような複合型はスキーマ管理の対象外。
+サブコマンド名と `Config` メンバーのマッピングは `SubcommandMapping` 構造体と
+`kSubcommandMappings` 配列で管理し、`src/command/subcommand.cpp` で実体を定義する。
+サブコマンドを追加・変更する際は `subcommand.cpp` のみ修正すればよい。
 
 優先度解決の仕組み:
 
 1. CLI11 がサブコマンド引数を `Config` の `add.a`, `add.b` 等に直接書き込む
-2. `ConfigManager::Resolve()` が設定ファイル値（`[subcommands.add]` セクション）を読み込む
-3. CLI でサブコマンドが指定された場合は `cli.cpp` で CLI 値を優先、未指定なら設定ファイル値を適用する
+2. `ConfigManager::Resolve()` が設定ファイルを読み込み、`GetFileValues()` でアクセス可能にする
+3. `cli.cpp` が `kSubcommandMappings` をループし、CLI 未指定のサブコマンドにファイル値を適用する
+
+```cpp
+// cli.cpp でのマージ例
+const Config &file_vals = config_manager.GetFileValues();
+for (std::size_t i = 0; i < kSubcommandMappingCount; ++i) {
+    const auto &m = kSubcommandMappings[i];
+    if (!app.got_subcommand(m.key)) {
+        config.*m.member = file_vals.*m.member;
+    }
+}
+```
 
 ```toml
 # TOML での記述例

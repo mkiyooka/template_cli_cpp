@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -23,3 +24,13 @@ struct Config {
     SubcommandConfig multiply;
     SubcommandConfig divide;
 };
+
+/// サブコマンド名と Config メンバーポインタのマッピング
+struct SubcommandMapping {
+    const char *key;
+    SubcommandConfig Config::*member;
+};
+
+/// サブコマンドマッピング配列（src/command/subcommand.cpp で定義）
+extern const SubcommandMapping kSubcommandMappings[];
+extern const std::size_t kSubcommandMappingCount;

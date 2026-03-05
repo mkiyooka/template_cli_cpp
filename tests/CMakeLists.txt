@@ -6,7 +6,7 @@ add_executable(test_config_manager
     test_config_manager.cpp
 )
 target_include_directories(test_config_manager PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(test_config_manager PRIVATE config_lib CLI11::CLI11 doctest::doctest)
+target_link_libraries(test_config_manager PRIVATE config_lib command_lib CLI11::CLI11 doctest::doctest)
 add_test(
     NAME test_config_manager
     COMMAND $<TARGET_FILE:test_config_manager>

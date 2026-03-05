@@ -1,12 +1,9 @@
-#include "config/config_manager.hpp"
-
 #include <cstddef>
 #include <string>
 #include <tuple>
 
-#include <fmt/base.h>
-
 #include "config/config_file_loader.hpp"
+#include "config/config_manager.hpp"
 #include "config/config_schema.hpp"
 
 namespace config {
@@ -19,6 +16,7 @@ constexpr std::size_t kSchemaSize = std::tuple_size_v<decltype(kConfigSchema)>;
 
 ConfigManager::ConfigManager()
     : cli_values_{},
+      file_values_{},
       cli_set_(kSchemaSize, false) {}
 
 void ConfigManager::RegisterOptions(CLI::App &app) {
@@ -45,19 +43,14 @@ Config ConfigManager::Resolve(const std::string &explicit_config_path) {
     Config result{};
 
     // 設定ファイルを読み込む
-    Config file_values{};
+    file_values_ = Config{};
     const std::string config_path = explicit_config_path.empty() ? FindDefaultConfig() : explicit_config_path;
     if (!config_path.empty()) {
-        LoadFromFile(config_path, file_values);
+        LoadFromFile(config_path, file_values_);
     }
 
-    // ファイル値で上書き (デフォルト < ファイル)
-    std::apply([&](auto &&...field) { ((result.*field.member = file_values.*field.member), ...); }, kConfigSchema);
-    result.plugins   = file_values.plugins;
-    result.add       = file_values.add;
-    result.subtract  = file_values.subtract;
-    result.multiply  = file_values.multiply;
-    result.divide    = file_values.divide;
+    // スキーマフィールドをファイル値で上書き (デフォルト < ファイル)
+    std::apply([&](auto &&...field) { ((result.*field.member = file_values_.*field.member), ...); }, kConfigSchema);
 
     // CLI値で上書き (ファイル < CLI)
     std::size_t idx = 0;
@@ -76,23 +69,6 @@ Config ConfigManager::Resolve(const std::string &explicit_config_path) {
     );
 
     return result;
-}
-
-void ShowConfig(const Config &conf) {
-    std::apply(
-        [&](auto &&...field) { ([&] { fmt::print("{}: {}\n", field.config_key, conf.*field.member); }(), ...); },
-        kConfigSchema
-    );
-    for (const auto &p : conf.plugins) {
-        fmt::print("plugin: file={}, number={}\n", p.file, p.number);
-    }
-    const auto print_sub = [&](const char *name, const SubcommandConfig &sub) {
-        fmt::print("subcommands.{}: a={}, b={}\n", name, sub.a, sub.b);
-    };
-    print_sub("add",      conf.add);
-    print_sub("subtract", conf.subtract);
-    print_sub("multiply", conf.multiply);
-    print_sub("divide",   conf.divide);
 }
 
 } // namespace config
