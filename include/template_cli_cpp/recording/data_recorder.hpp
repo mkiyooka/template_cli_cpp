@@ -44,9 +44,9 @@ public:
 
     /**
      * @brief 文字列をそのまま出力する
-     * @param msg 出力するメッセージ
+     * @param message 出力するメッセージ
      */
-    virtual void Output(std::string_view msg) = 0;
+    virtual void Output(std::string_view message) = 0;
 
     /**
      * @brief 出力バッファをフラッシュする

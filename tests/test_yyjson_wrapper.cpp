@@ -1,12 +1,13 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
+#include <doctest/doctest.h>
+
 #include <string>
 #include <vector>
 
-#include <doctest/doctest.h>
 #include <nlohmann/json.hpp>
 
-#include "utility/yyjson_wrapper.hpp"
+#include "template_cli_cpp/utility/yyjson_wrapper.hpp"
 
 // JSON文字列をパースして検証するヘルパー
 static nlohmann::json Parse(const std::string &s) { return nlohmann::json::parse(s); }

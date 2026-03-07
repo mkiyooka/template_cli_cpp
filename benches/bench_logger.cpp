@@ -1,4 +1,5 @@
 #define ANKERL_NANOBENCH_IMPLEMENT
+
 #include <nanobench.h>
 
 #include <filesystem>
@@ -10,7 +11,7 @@
 
 #include "template_cli_cpp/logging/null_logger.hpp"
 #include "template_cli_cpp/logging/spdlog_logger.hpp"
-#include "template_cli_cpp/logging/test_logger.hpp"
+#include "support/spy_logger.hpp"
 
 namespace {
 
@@ -60,7 +61,7 @@ int main() {
     di_spdlog_async.SetLevel(LogLevel::Info);
 
     NullLogger null_logger;
-    TestLogger test_logger;
+    SpyLogger test_logger;
     test_logger.SetLevel(LogLevel::Info);
 
     // ──────────────────────────────────────────────────────────────
@@ -87,14 +88,14 @@ int main() {
     // ════════════════════════════════════════════════════════════════
     // セクション2: レイテンシ — Logger 経由（DI）
     //   仮想関数呼び出しのオーバーヘッドを含む
-    //   NullLogger / TestLogger はI/O なしの純粋な仮想呼び出しコスト
+    //   NullLogger / SpyLogger はI/O なしの純粋な仮想呼び出しコスト
     // ════════════════════════════════════════════════════════════════
 
     bench.minEpochIterations(100000);
     bench.run("NullLogger      [latency:DI   ] 1 msg (no-op)", [&] { WriteOne(null_logger, "Benchmark message 42"); });
 
     bench.minEpochIterations(1300000);
-    bench.run("TestLogger      [latency:DI   ] 1 msg (memory append)", [&] {
+    bench.run("SpyLogger      [latency:DI   ] 1 msg (memory append)", [&] {
         WriteOne(test_logger, "Benchmark message 42");
     });
 
@@ -141,7 +142,7 @@ int main() {
         }
     });
 
-    bench.run("TestLogger      [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (memory)", [&] {
+    bench.run("SpyLogger      [throughput:DI   ] batch " + std::to_string(kBatchSize) + " msgs (memory)", [&] {
         test_logger.clear();
         for (int i = 0; i < kBatchSize; ++i) {
             WriteOne(test_logger, "Batch message");

@@ -12,6 +12,6 @@ public:
     void Enable() override {}
     void Disable() override {}
     bool IsEnabled() const override { return false; }
-    void Output(std::string_view) override {}
+    void Output(std::string_view /*message*/) override {}
     void Flush() override {}
 };

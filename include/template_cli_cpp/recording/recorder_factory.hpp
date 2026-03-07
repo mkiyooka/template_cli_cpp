@@ -4,6 +4,7 @@
 #include <string>
 
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #include "template_cli_cpp/recording/data_recorder.hpp"
@@ -33,6 +34,17 @@ struct RecorderFactory {
      */
     static std::unique_ptr<DataRecorder> MakeFile(const std::string &name, const std::string &file_path) {
         auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(file_path);
+        auto inner = std::make_shared<spdlog::logger>(name, sink);
+        return std::make_unique<SpdlogRecorder>(inner);
+    }
+
+    /**
+     * @brief 標準出力（カラー付き）に書き込む同期レコーダーを生成する
+     *
+     * @param name spdlog 内部名（重複不可）
+     */
+    static std::unique_ptr<DataRecorder> MakeConsole(const std::string &name) {
+        auto sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         auto inner = std::make_shared<spdlog::logger>(name, sink);
         return std::make_unique<SpdlogRecorder>(inner);
     }

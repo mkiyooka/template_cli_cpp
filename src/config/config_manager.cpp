@@ -2,7 +2,7 @@
 #include <string>
 #include <tuple>
 
-#include "config/config_file_loader.hpp"
+#include "config_file_loader.hpp"
 #include "config/config_manager.hpp"
 #include "config/config_schema.hpp"
 

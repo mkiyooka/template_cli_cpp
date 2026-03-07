@@ -1,4 +1,4 @@
-#include "config/config_file_loader.hpp"
+#include "config_file_loader.hpp"
 
 #include <algorithm>
 #include <filesystem>

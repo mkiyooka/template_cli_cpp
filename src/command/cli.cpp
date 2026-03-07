@@ -4,8 +4,6 @@
 #include <CLI/CLI.hpp>
 #include <fmt/base.h>
 #include <fmt/format.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
 #include "command/subcommand.hpp"
 #include "config/config_manager.hpp"
@@ -13,9 +11,9 @@
 #include "sut_example/system_under_test.hpp"
 #include "template_cli_cpp/logging/logger_factory.hpp"
 #include "template_cli_cpp/output/app_output.hpp"
+#include "template_cli_cpp/recording/recorder_factory.hpp"
 #include "template_cli_cpp/recording/recorder_manager.hpp"
-#include "template_cli_cpp/recording/spdlog_recorder.hpp"
-#include "utility/yyjson_wrapper.hpp"
+#include "template_cli_cpp/utility/yyjson_wrapper.hpp"
 
 namespace {
 
@@ -34,13 +32,6 @@ void ShowConfig(const Config &conf) {
         const auto &m = kSubcommandMappings[i];
         fmt::print("subcommands.{}: a={}, b={}\n", m.key, (conf.*m.member).a, (conf.*m.member).b);
     }
-}
-
-// DataRecorder をコンソール（stdout）へ出力するレコーダーを生成する
-std::unique_ptr<DataRecorder> MakeConsoleRecorder(const std::string &name) {
-    auto sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    auto inner = std::make_shared<spdlog::logger>(name, sink);
-    return std::make_unique<SpdlogRecorder>(inner);
 }
 
 // Logger と DataRecorder を使った出力サンプル
@@ -156,7 +147,7 @@ int RunCli(int argc, char *argv[]) {
     // 出力サンプル: Logger でログ出力、DataRecorder で JSON 結果を出力
     auto logger = LoggerFactory::MakeConsole("app", LogLevel::Debug);
     RecorderManager<OutputModule> recorder_manager;
-    recorder_manager.RegisterRecorder(OutputModule::kResults, MakeConsoleRecorder("results"));
+    recorder_manager.RegisterRecorder(OutputModule::kResults, RecorderFactory::MakeConsole("results"));
     AppOutput<OutputModule> out(*logger, recorder_manager);
     RunOutputSample(out);
 

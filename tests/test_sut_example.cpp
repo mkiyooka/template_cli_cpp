@@ -1,8 +1,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
-#include <vector>
-
 #include <doctest/doctest.h>
+
+#include <vector>
 
 #include "sut_example/system_under_test.hpp"
 

@@ -6,25 +6,25 @@
 #include "template_cli_cpp/logging/logger.hpp"
 
 /**
- * @brief テスト用ロガー
+ * @brief テスト・ベンチマーク用スパイロガー
  *
  * ログエントリをメモリに蓄積し、テストコードから検証できる。
  *
  * @code
- * TestLogger logger;
+ * SpyLogger logger;
  * process(logger);
- * assert(logger.entries().size() == 3);
+ * assert(logger.Entries().size() == 3);
  * @endcode
  */
-class TestLogger : public Logger {
+class SpyLogger : public Logger {
 public:
-    void Log(LogLevel lvl, std::string_view msg) override {
-        if (lvl >= level_) {
-            entries_.emplace_back(msg);
+    void Log(LogLevel level, std::string_view message) override {
+        if (level >= level_) {
+            entries_.emplace_back(message);
         }
     }
 
-    void SetLevel(LogLevel lvl) override { level_ = lvl; }
+    void SetLevel(LogLevel level) override { level_ = level; }
 
     LogLevel Level() const override { return level_; }
 

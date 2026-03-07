@@ -102,16 +102,37 @@ CLI 引数・設定ファイル・デフォルト値を統合管理する。
     - `command/` — CLI エントリポイント・サブコマンド
     - `config/` — 設定ファイルの読み込み・管理
     - `sut_example/` — サンプル実装
-- `include/` — ヘッダファイル
-    - `command/` — CLI インターフェース
-    - `config/` — 設定システム
-    - `template_cli_cpp/` — ライブラリ群（logging, output, recording）
-    - `utility/` — ユーティリティ（yyjson ラッパーなど）
+- `include/` — 公開ヘッダファイル
+    - `command/` — CLI インターフェース（カスタマイズ対象）
+    - `config/` — 設定システム（カスタマイズ対象）
+    - `template_cli_cpp/` — 汎用ライブラリ層（変更不要）
+        - `logging/` — Logger インターフェース・spdlog ラッパー・ファクトリ
+        - `recording/` — DataRecorder インターフェース・spdlog ラッパー・ファクトリ
+        - `output/` — AppOutput DI コンテナ
+        - `utility/` — yyjson ラッパー（JsonBuilder）
 - `tests/` — テストコード（doctest）
+    - `test_logger.hpp` — テスト用ロガー（テストコード専用）
 - `benches/` — ベンチマーク（nanobench）
 - `config/` — 設定ファイルサンプル（TOML / JSON / YAML）
 - `cmake/` — CMake モジュール群
 - `docs/` — ドキュメント
+
+## テンプレートのカスタマイズ
+
+このテンプレートは以下の 2 層に分かれています。
+
+**変更不要（汎用ライブラリ層）**:
+
+- `include/template_cli_cpp/` — logging / recording / output / utility
+
+**変更対象（CLIテンプレート層）**:
+
+- `include/config/` / `src/config/` — 設定スキーマ・フィールド追加
+- `include/command/` / `src/command/` — CLI コマンド・サブコマンド実装
+- `src/sut_example/` — ビジネスロジックのサンプル（実装を差し替える）
+
+サブコマンド名やフィールド名は `src/command/subcommand.cpp` に集約されており、
+追加・変更の際はこのファイルのみを修正します。
 
 ## ドキュメント
 
