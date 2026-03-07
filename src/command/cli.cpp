@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <memory>
+#include <vector>
 
 #include <CLI/CLI.hpp>
 #include <fmt/base.h>
@@ -8,7 +9,6 @@
 #include "command/subcommand.hpp"
 #include "config/config_manager.hpp"
 #include "config/config_schema.hpp"
-#include "sut_example/system_under_test.hpp"
 #include "template_cli_cpp/logging/logger_factory.hpp"
 #include "template_cli_cpp/output/app_output.hpp"
 #include "template_cli_cpp/recording/recorder_factory.hpp"
@@ -43,30 +43,33 @@ void RunOutputSample(AppOutput<OutputModule> &out) {
     DataRecorder &recorder = out.GetRecorders()[OutputModule::kResults];
 
     // --- 入力パラメータ ---
-    const double input = 3.5;
-    const int start = 1;
-    const int count = 5;
-    const int divisor = 7;
-    const int target_value = 15;
+    constexpr double kInput = 3.5;
+    constexpr int kStart = 1;
+    constexpr int kCount = 5;
+    constexpr int kDivisor = 7;
+    constexpr int kTargetValue = 15;
 
     // 入力変数をログに出力
     logger.Log(LogLevel::Info, "=== output sample start ===");
     logger.Log(
         LogLevel::Info,
         fmt::format(
-            "input={}, start={}, count={}, divisor={}, target_value={}", input, start, count, divisor, target_value
+            "input={}, start={}, count={}, divisor={}, target_value={}", kInput, kStart, kCount, kDivisor, kTargetValue
         )
     );
 
     // --- 計算 ---
-    const double doubled = sut_example::DoubleValue(input);
-    const auto sequence = sut_example::CreateSequence(start, count);
-    const sut_example::ModuloCalculator calc(divisor);
-    const int remainder = calc.GetRemainder(target_value);
+    constexpr double kDoubled = kInput * 2.0;
+    std::vector<int> sequence;
+    sequence.reserve(kCount);
+    for (int i = 0; i < kCount; ++i) {
+        sequence.push_back(kStart + i);
+    }
+    const int remainder = kTargetValue % kDivisor;
 
-    logger.Log(LogLevel::Debug, fmt::format("DoubleValue({}) = {}", input, doubled));
-    logger.Log(LogLevel::Debug, fmt::format("CreateSequence({}, {}) size={}", start, count, sequence.size()));
-    logger.Log(LogLevel::Debug, fmt::format("GetRemainder({}) = {}", target_value, remainder));
+    logger.Log(LogLevel::Debug, fmt::format("doubled({}) = {}", kInput, kDoubled));
+    logger.Log(LogLevel::Debug, fmt::format("sequence({}, {}) size={}", kStart, kCount, sequence.size()));
+    logger.Log(LogLevel::Debug, fmt::format("remainder({}) = {}", kTargetValue, remainder));
 
     // --- JSON 出力 ---
     recorder.Enable();
@@ -75,15 +78,15 @@ void RunOutputSample(AppOutput<OutputModule> &out) {
 
     // inputs サブオブジェクト
     auto inputs_object = builder.AddNested("inputs");
-    builder.AddToNested(inputs_object, "input", input);
-    builder.AddToNested(inputs_object, "start", start);
-    builder.AddToNested(inputs_object, "count", count);
-    builder.AddToNested(inputs_object, "divisor", divisor);
-    builder.AddToNested(inputs_object, "target_value", target_value);
+    builder.AddToNested(inputs_object, "input", kInput);
+    builder.AddToNested(inputs_object, "start", kStart);
+    builder.AddToNested(inputs_object, "count", kCount);
+    builder.AddToNested(inputs_object, "divisor", kDivisor);
+    builder.AddToNested(inputs_object, "target_value", kTargetValue);
 
     // results サブオブジェクト（sequence は vector<int> として Add() を使用）
     auto results_object = builder.AddNested("results");
-    builder.AddToNested(results_object, "doubled", doubled);
+    builder.AddToNested(results_object, "doubled", kDoubled);
     builder.AddToNested(results_object, "remainder", remainder);
     // sequence は vector<int> なのでトップレベルの Add() で追加
     builder.Add("sequence", sequence);

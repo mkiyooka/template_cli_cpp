@@ -2,7 +2,6 @@
 set(COMMAND_SOURCES
     cli.cpp
     subcommand.cpp
-    ${PROJECT_SOURCE_DIR}/src/sut_example/system_under_test.cpp
 )
 
 # Create command library

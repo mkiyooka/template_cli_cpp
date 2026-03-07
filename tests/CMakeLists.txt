@@ -16,25 +16,18 @@ add_test(
     COMMAND $<TARGET_FILE:test_config_manager>
 )
 
-# SUT example library
-add_library(sut_example_lib STATIC
-    ${PROJECT_SOURCE_DIR}/src/sut_example/system_under_test.cpp
+# doctest 記述パターンのサンプルテスト
+add_executable(test_doctest_usage
+    test_doctest_usage.cpp
 )
-target_include_directories(sut_example_lib PUBLIC ${PROJECT_SOURCE_DIR}/include)
-# No external dependencies needed for simplified implementation
-
-# Test executable
-add_executable(test_sut_example
-    test_sut_example.cpp
+target_include_directories(test_doctest_usage PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/tests
 )
-
-target_include_directories(test_sut_example PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(test_sut_example PRIVATE sut_example_lib doctest::doctest)
-
-# Register the test with CTest
+target_link_libraries(test_doctest_usage PRIVATE doctest::doctest)
 add_test(
-    NAME test_sut_example
-    COMMAND $<TARGET_FILE:test_sut_example>
+    NAME test_doctest_usage
+    COMMAND $<TARGET_FILE:test_doctest_usage>
 )
 
 # yyjson_wrapper test
