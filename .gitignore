@@ -207,3 +207,6 @@ debug/
 # Other files to ignore
 .DS_Store
 *.swp
+
+# Output files (runtime-generated)
+output/

@@ -4,7 +4,7 @@
 #include "template_cli_cpp/recording/recorder_manager.hpp"
 
 /**
- * @brief アプリケーション出力の統合 DI コンテナ
+ * @brief 出力処理に必要な依存をまとめた DI コンテキスト
  *
  * 診断ログ（Logger）と解析データ（RecorderManager）を一つにまとめ、
  * アプリケーションコアに DI で注入する。
@@ -14,19 +14,19 @@
  * @code
  * enum class Module { X, Y };
  *
- * AppOutput<Module> out(logger, recorder_manager);
+ * OutputContext<Module> output_context(logger, recorder_manager);
  *
- * void run(AppOutput<Module>& out) {
- *     out.logger().Log(LogLevel::Debug, "initialize start");
- *     out.recorders()[Module::X].Enable();
- *     out.recorders()[Module::X].Write("{},{:.6f}", step, value);
+ * void run(OutputContext<Module>& output_context) {
+ *     output_context.GetLogger().Log(LogLevel::Debug, "initialize start");
+ *     output_context.GetRecorders()[Module::X].Enable();
+ *     output_context.GetRecorders()[Module::X].Write("{},{:.6f}", step, value);
  * }
  * @endcode
  */
 template <typename Key>
-class AppOutput {
+class OutputContext {
 public:
-    AppOutput(Logger &logger, RecorderManager<Key> &recorders)
+    OutputContext(Logger &logger, RecorderManager<Key> &recorders)
         : logger_(&logger),
           recorders_(&recorders) {}
 

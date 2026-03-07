@@ -10,14 +10,14 @@
 #include "config/config_manager.hpp"
 #include "config/config_schema.hpp"
 #include "template_cli_cpp/logging/logger_factory.hpp"
-#include "template_cli_cpp/output/app_output.hpp"
+#include "template_cli_cpp/output/output_context.hpp"
 #include "template_cli_cpp/recording/recorder_factory.hpp"
 #include "template_cli_cpp/recording/recorder_manager.hpp"
 #include "template_cli_cpp/utility/yyjson_wrapper.hpp"
 
 namespace {
 
-enum class OutputModule : std::uint8_t { kResults };
+enum class OutputModule : std::uint8_t { kResultsCsv, kResultsJson };
 
 // 設定内容をターミナルに表示する（デバッグ・確認用）
 void ShowConfig(const Config &conf) {
@@ -36,11 +36,19 @@ void ShowConfig(const Config &conf) {
 
 // Logger と DataRecorder を使った出力サンプル
 //
-// - 入力変数は Logger で診断ログとして出力
-// - 計算結果は JsonBuilder で JSON を構築し DataRecorder で出力
-void RunOutputSample(AppOutput<OutputModule> &out) {
-    Logger &logger = out.GetLogger();
-    DataRecorder &recorder = out.GetRecorders()[OutputModule::kResults];
+// Logger のフォーマット:
+//   MakeConsole() の pattern 引数で spdlog のパターン文字列を指定する。
+//   空文字列（デフォルト）の場合は spdlog 標準書式が使われる。
+//   パターン記号: %Y=年 %m=月 %d=日 %H=時 %M=分 %S=秒 %e=ミリ秒
+//                 %n=ロガー名 %l=レベル(小文字) %L=レベル(1文字) %v=メッセージ
+//
+// DataRecorder のフォーマット:
+//   - MakeCsvFile()      : ヘッダ行を自動出力。Write() で行を追記する。
+//   - MakeJsonLinesFile(): 1行1JSON (NDJSON)。Write() に JSON 文字列を渡す。
+void RunOutputSample(OutputContext<OutputModule> &output_context) {
+    Logger &logger = output_context.GetLogger();
+    DataRecorder &csv_recorder = output_context.GetRecorders()[OutputModule::kResultsCsv];
+    DataRecorder &json_recorder = output_context.GetRecorders()[OutputModule::kResultsJson];
 
     // --- 入力パラメータ ---
     constexpr double kInput = 3.5;
@@ -71,8 +79,15 @@ void RunOutputSample(AppOutput<OutputModule> &out) {
     logger.Log(LogLevel::Debug, fmt::format("sequence({}, {}) size={}", kStart, kCount, sequence.size()));
     logger.Log(LogLevel::Debug, fmt::format("remainder({}) = {}", kTargetValue, remainder));
 
-    // --- JSON 出力 ---
-    recorder.Enable();
+    // --- CSV 出力（ヘッダはファクトリ生成時に書き込み済み）---
+    csv_recorder.Enable();
+    csv_recorder.Write("{},{:.6f},{}", "doubled", kDoubled, remainder);
+    csv_recorder.Write("{},{:.6f},{}", "single", kInput, 2);
+    csv_recorder.Flush();
+    csv_recorder.Disable();
+
+    // --- JSON Lines 出力（1行1JSON / NDJSON）---
+    json_recorder.Enable();
 
     json::JsonBuilder builder;
 
@@ -91,10 +106,9 @@ void RunOutputSample(AppOutput<OutputModule> &out) {
     // sequence は vector<int> なのでトップレベルの Add() で追加
     builder.Add("sequence", sequence);
 
-    recorder.Write("{}", builder.Serialize(/* pretty = */ false));
-
-    recorder.Flush();
-    recorder.Disable();
+    json_recorder.Write("{}", builder.Serialize(/* pretty = */ false));
+    json_recorder.Flush();
+    json_recorder.Disable();
 
     logger.Log(LogLevel::Info, "=== output sample end ===");
 }
@@ -147,12 +161,26 @@ int RunCli(int argc, char *argv[]) {
 
     ShowConfig(config);
 
-    // 出力サンプル: Logger でログ出力、DataRecorder で JSON 結果を出力
-    auto logger = LoggerFactory::MakeConsole("app", LogLevel::Debug);
+    // 出力サンプル: Logger / DataRecorder のフォーマット指定例
+    //
+    // Logger: pattern 引数でタイムスタンプ・ロガー名・レベルを含む書式を指定する。
+    //   省略時は spdlog のデフォルト書式（"[timestamp][name][level]message"）。
+    auto logger = LoggerFactory::MakeConsole("app", LogLevel::Debug, "[%Y-%m-%d %H:%M:%S.%e][%n][%^%l%$]%v");
+
+    // DataRecorder: CSV と JSON Lines (NDJSON) の 2 形式を使い分ける例。
+    //   MakeCsvFile()      - ヘッダ行を生成時に書き込み、Write() で行を追記。
+    //   MakeJsonLinesFile() - Write() に JSON 文字列を渡して 1 行 1 JSON で追記。
     RecorderManager<OutputModule> recorder_manager;
-    recorder_manager.RegisterRecorder(OutputModule::kResults, RecorderFactory::MakeConsole("results"));
-    AppOutput<OutputModule> out(*logger, recorder_manager);
-    RunOutputSample(out);
+    recorder_manager.RegisterRecorder(
+        OutputModule::kResultsCsv,
+        RecorderFactory::MakeCsvFile("results_csv", "output/results.csv", "name,value,remainder")
+    );
+    recorder_manager.RegisterRecorder(
+        OutputModule::kResultsJson,
+        RecorderFactory::MakeJsonLinesFile("results_json", "output/results.jsonl")
+    );
+    OutputContext<OutputModule> output_context(*logger, recorder_manager);
+    RunOutputSample(output_context);
 
     return 0;
 }
