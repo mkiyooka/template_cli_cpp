@@ -1,0 +1,128 @@
+{
+    // ========================================
+    // Remote Settings (Keep in repository)
+    // - Source Code
+    // - Terminal
+    // - Tasks
+    // - Language Servers
+    // ========================================
+    "lsp": {
+        "clangd": {
+            "binary": {
+                "arguments": [
+                    "--background-index",
+                    "--clang-tidy",
+                    "--completion-style=detailed",
+                    "--header-insertion=never",
+                ],
+            },
+        },
+    },
+    "languages": {
+        "C++": {
+            "language_servers": ["clangd"],
+            "format_on_save": "on",
+        },
+        "C": {
+            "language_servers": ["clangd"],
+            "format_on_save": "on",
+        },
+        "JSON": {
+            "tab_size": 4,
+            "format_on_save": "on",
+        },
+        "JSONC": {
+            "tab_size": 4,
+            "format_on_save": "on",
+        },
+        "TOML": {
+            "format_on_save": "on",
+            "formatter": "language_server",
+        },
+        "Markdown": {
+            "format_on_save": "on",
+            "formatter": "language_server",
+        },
+    },
+    "file_scan_exclusions": [
+        "**/.git",
+        "**/.svn",
+        "**/.hg",
+        "**/.jj",
+        "**/CVS",
+        "**/.DS_Store",
+        "**/Thumbs.db",
+        "**/.classpath",
+        "**/.settings",
+        "**/build",
+        "**/.pixi",
+        "**/.venv",
+        "**/.nox",
+        "**/.ruff_cache",
+        "**/.pytest_cache",
+        "**/__pycache__",
+        "**/*.egg-info",
+        "**/wheelhouse",
+        "**/.cache",
+        "**/third_party",
+        "**/CMakeFiles",
+    ],
+
+    // ========================================
+    // Local Settings (For local development)
+    // See memo.md for local configuration
+    // - UI
+    // - Tree-sitter
+    // - Unsaved buffers
+    // - Collaboration
+    // - AI
+    // ========================================
+    /*
+    "diagnostics_max_severity": "all",
+    "inlay_hints": {
+        "enabled": true,
+        "show_type_hints": true,
+        "show_parameter_hints": true,
+        "show_other_hints": true,
+        "show_background": false,
+        "edit_debounce_ms": 700,
+        "scroll_debounce_ms": 50,
+        "toggle_on_modifiers_press": {
+            "control": false,
+            "shift": true,
+            "alt": true,
+            "platform": false,
+            "function": false,
+        },
+    },
+    "diagnostics": {
+        "include_warnings": true,
+        "inline": {
+            "enabled": true,
+        },
+    },
+    "toolbar": {
+        "breadcrumbs": true,
+        "quick_actions": true,
+        "selections_menu": true,
+        "agent_review": true,
+        "code_actions": true,
+    },
+    "status_bar": {
+        "active_language_button": true,
+        "cursor_position_button": true,
+        "line_endings_button": true,
+    },
+    "line_indicator_format": "long",
+    "search": {
+        "button": false,
+        "whole_word": false,
+        "case_sensitive": false,
+        "include_ignored": false,
+        "regex": true,
+        "center_on_match": false,
+    },
+    "use_smartcase_search": true,
+    "hide_mouse": "on_typing",
+    */
+}

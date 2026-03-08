@@ -1,0 +1,77 @@
+// Remote Tasks Configuration
+// These tasks run on the remote server
+[
+    // C++ tasks (pixi経由)
+    {
+        "label": "cmake config (Release)",
+        "command": "pixi",
+        "args": ["run", "config"],
+        "tags": ["build"],
+    },
+    {
+        "label": "cmake config (Debug)",
+        "command": "pixi",
+        "args": ["run", "config-debug"],
+        "tags": ["build"],
+    },
+    {
+        "label": "cmake build",
+        "command": "pixi",
+        "args": ["run", "build"],
+        "tags": ["build"],
+    },
+    {
+        "label": "cmake clean",
+        "command": "pixi",
+        "args": ["run", "clean"],
+        "tags": ["build"],
+    },
+    {
+        "label": "ctest",
+        "command": "pixi",
+        "args": ["run", "test"],
+        "tags": ["test"],
+    },
+    {
+        "label": "clang-format",
+        "command": "pixi",
+        "args": ["run", "format"],
+        "tags": ["format"],
+    },
+    {
+        "label": "clang-tidy",
+        "command": "pixi",
+        "args": ["run", "lint"],
+        "tags": ["lint"],
+    },
+    {
+        "label": "cppcheck",
+        "command": "pixi",
+        "args": ["run", "run-cppcheck"],
+        "tags": ["lint"],
+    },
+    {
+        "label": "fullcheck (C++)",
+        "command": "pixi",
+        "args": ["run", "fullcheck"],
+        "tags": ["lint"],
+    },
+    {
+        "label": "cmake config (Coverage)",
+        "command": "pixi",
+        "args": ["run", "config-coverage"],
+        "tags": ["build"],
+    },
+    {
+        "label": "coverage",
+        "command": "pixi",
+        "args": ["run", "coverage"],
+        "tags": ["test"],
+    },
+    {
+        "label": "coverage-report",
+        "command": "pixi",
+        "args": ["run", "coverage-report"],
+        "tags": ["test"],
+    },
+]
