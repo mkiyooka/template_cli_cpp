@@ -32,8 +32,20 @@ libgcc-ng = "==15.1.0"  # GCC runtime library
 libstdcxx-ng = "==15.1.0"  # C++ standard library
 valgrind = "==3.26.0"
 
-[target.linux-64.tasks.config-coverage]
-cmd = "cmake --preset=coverage"
+[target.linux-64.tasks.asan]
+cmd = """
+cmake --preset=asan &&
+cmake --build build-asan -j 8 &&
+ctest --test-dir build-asan
+"""
+env = { CC = "clang", CXX = "clang++" }
+
+[target.linux-64.tasks.coverage]
+cmd = """
+cmake --preset=coverage &&
+cmake --build build-coverage --target coverage &&
+cmake --build build-coverage --target coverage-report
+"""
 env = { CC = "clang", CXX = "clang++" }
 
 [target.win-64.dependencies]
@@ -45,16 +57,32 @@ m2-gcc-libs = "==13.3.0.1"  # GCC runtime libraries
 libgcc-devel_win-64 = "==15.1.0"  # GCC development libraries
 
 [tasks]
-# Main development tasks
+# ---- normal workflow ----
 config = "cmake --preset=release"
 config-debug = "cmake --preset=debug"
+
 build = "cmake --build build -j 8"
 test = "ctest --test-dir build"
-clean = "cmake --build build --target clean"
+
+clean = "cmake --build build --target clean && rm -rf build-asan build-coverage"
+
+# ---- quality ----
 format = "cmake --build build --target format"
 lint = "cmake --build build --target lint"
 run-cppcheck = "cmake --build build --target run-cppcheck"
+
 fullcheck = "pixi run typos && pixi run lint && pixi run run-cppcheck"
-config-coverage = "cmake --preset=coverage"
-coverage = "cmake --build build-coverage --target coverage"
-coverage-report = "cmake --build build-coverage --target coverage-report"
+
+# ---- sanitizer workflow ----
+asan = """
+cmake --preset=asan &&
+cmake --build build-asan -j 8 &&
+ctest --test-dir build-asan
+"""
+
+# ---- coverage workflow ----
+coverage = """
+cmake --preset=coverage &&
+cmake --build build-coverage --target coverage &&
+cmake --build build-coverage --target coverage-report
+"""

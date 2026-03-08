@@ -53,19 +53,24 @@ pixi run test     # テスト実行
 ## 主要タスク一覧
 
 ```bash
+# ---- 通常ワークフロー ----
 pixi run config           # CMake 設定（Release）
 pixi run config-debug     # CMake 設定（Debug）
 pixi run build            # ビルド
 pixi run test             # テスト実行
+pixi run clean            # ビルド成果物をクリーン
+
+# ---- コード品質 ----
 pixi run format           # clang-format によるコード整形
 pixi run lint             # clang-tidy による静的解析
 pixi run run-cppcheck     # cppcheck による静的解析
 pixi run fullcheck        # typos + lint + cppcheck をまとめて実行
 
-# カバレッジ（macOS / Linux 共通）
-pixi run config-coverage  # カバレッジビルドの設定
-pixi run coverage         # 計測・テキスト & HTML レポート生成
-pixi run coverage-report  # HTML レポートをブラウザで開く（macOS のみ）
+# ---- サニタイザ（ASan + UBSan） ----
+pixi run asan             # 設定 → ビルド → テストをまとめて実行（build-asan/）
+
+# ---- カバレッジ ----
+pixi run coverage         # 設定 → 計測 → HTML レポート生成（build-coverage/）
 ```
 
 詳細なビルドシステムの説明は [docs/build-system.md](docs/build-system.md) を参照。
@@ -100,20 +105,20 @@ CLI 引数・設定ファイル・デフォルト値を統合管理する。
 
 - `src/` — アプリケーションソースコード
     - `command/` — CLI エントリポイント・サブコマンド
-    - `config/` — 設定ファイルの読み込み・管理
-    - `sut_example/` — サンプル実装
+    - `config/` — 設定ファイルの読み込み・管理（内部実装ヘッダを含む）
 - `include/` — 公開ヘッダファイル
     - `command/` — CLI インターフェース（カスタマイズ対象）
     - `config/` — 設定システム（カスタマイズ対象）
     - `template_cli_cpp/` — 汎用ライブラリ層（変更不要）
         - `logging/` — Logger インターフェース・spdlog ラッパー・ファクトリ
         - `recording/` — DataRecorder インターフェース・spdlog ラッパー・ファクトリ
-        - `output/` — AppOutput DI コンテナ
+        - `output/` — OutputContext DI コンテキスト
         - `utility/` — yyjson ラッパー（JsonBuilder）
 - `tests/` — テストコード（doctest）
-    - `test_logger.hpp` — テスト用ロガー（テストコード専用）
+    - `support/` — テスト用ユーティリティ（SpyLogger, TempFile, doctest サンプル）
 - `benches/` — ベンチマーク（nanobench）
 - `config/` — 設定ファイルサンプル（TOML / JSON / YAML）
+- `output/` — 実行時出力ファイル（git 追跡対象外）
 - `cmake/` — CMake モジュール群
 - `docs/` — ドキュメント
 
@@ -129,7 +134,6 @@ CLI 引数・設定ファイル・デフォルト値を統合管理する。
 
 - `include/config/` / `src/config/` — 設定スキーマ・フィールド追加
 - `include/command/` / `src/command/` — CLI コマンド・サブコマンド実装
-- `src/sut_example/` — ビジネスロジックのサンプル（実装を差し替える）
 
 サブコマンド名やフィールド名は `src/command/subcommand.cpp` に集約されており、
 追加・変更の際はこのファイルのみを修正します。

@@ -121,5 +121,6 @@
         "**/build": true,
         "**/.cache": true,
         "**/CMakeFiles": true
-    }
+    },
+    "livePreview.defaultPreviewPath": "/build-coverage/coverage-html/index.html"
 }

@@ -138,6 +138,7 @@ _version.py
 # C++ build directory
 _build/
 build-coverage/
+build-asan/
 
 # Conan
 .conan/

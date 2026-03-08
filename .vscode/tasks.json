@@ -5,122 +5,103 @@
     },
     "tasks": [
         {
-            "label": "conan_install",
+            "label": "config (Release)",
             "type": "shell",
-            "command": "conan",
-            "args": ["install", ".", "-b", "missing", "--output-folder=build"],
-            "group": "build",
-            "detail": "Conanで依存関係をインストール",
-            "problemMatcher": []
-        },
-        {
-            "label": "cmake_configure",
-            "type": "shell",
-            "command": "cmake",
-            "args": ["--preset", "${input:buildPreset}"],
+            "command": "pixi",
+            "args": ["run", "config"],
             "group": { "kind": "build", "isDefault": false },
-            "detail": "CMakeでプロジェクトを設定",
-            "dependsOn": ["conan_install"],
+            "detail": "CMake 設定（Release）",
             "problemMatcher": []
         },
         {
-            "label": "cmake_build",
+            "label": "config (Debug)",
             "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build"],
+            "command": "pixi",
+            "args": ["run", "config-debug"],
+            "group": { "kind": "build", "isDefault": false },
+            "detail": "CMake 設定（Debug）",
+            "problemMatcher": []
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "pixi",
+            "args": ["run", "build"],
             "group": { "kind": "build", "isDefault": true },
-            "detail": "CMakeでプロジェクトをビルド",
-            "dependsOn": ["cmake_configure"],
+            "detail": "ビルド（build/）",
             "problemMatcher": ["$gcc"]
         },
         {
-            "label": "cmake_clean",
+            "label": "test",
             "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build", "--target", "clean"],
-            "group": "build",
-            "detail": "ビルド成果物をクリーンアップ"
+            "command": "pixi",
+            "args": ["run", "test"],
+            "group": { "kind": "test", "isDefault": true },
+            "detail": "ctest でテスト実行",
+            "problemMatcher": []
         },
         {
-            "label": "run_tests",
+            "label": "clean",
             "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build", "--target", "test"],
+            "command": "pixi",
+            "args": ["run", "clean"],
+            "group": "build",
+            "detail": "ビルド成果物をクリーン",
+            "problemMatcher": []
+        },
+        {
+            "label": "format",
+            "type": "shell",
+            "command": "pixi",
+            "args": ["run", "format"],
+            "group": "build",
+            "detail": "clang-format でコード整形",
+            "problemMatcher": []
+        },
+        {
+            "label": "lint",
+            "type": "shell",
+            "command": "pixi",
+            "args": ["run", "lint"],
+            "group": "build",
+            "detail": "clang-tidy で静的解析",
+            "problemMatcher": []
+        },
+        {
+            "label": "cppcheck",
+            "type": "shell",
+            "command": "pixi",
+            "args": ["run", "run-cppcheck"],
+            "group": "build",
+            "detail": "cppcheck で静的解析",
+            "problemMatcher": []
+        },
+        {
+            "label": "fullcheck",
+            "type": "shell",
+            "command": "pixi",
+            "args": ["run", "fullcheck"],
+            "group": "build",
+            "detail": "typos + lint + cppcheck をまとめて実行",
+            "problemMatcher": []
+        },
+        {
+            "label": "asan (config + build + test)",
+            "type": "shell",
+            "command": "pixi",
+            "args": ["run", "asan"],
             "group": "test",
-            "detail": "テストを実行",
-            "dependsOn": ["cmake_build"]
+            "detail": "ASan + UBSan ビルドとテスト（build-asan/）",
+            "problemMatcher": ["$gcc"]
         },
         {
-            "label": "quality_format",
+            "label": "coverage (config + run + report)",
             "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build", "--target", "format"],
-            "group": "build",
-            "detail": "clang-formatでコードをフォーマット",
-            "dependsOn": ["cmake_configure"]
-        },
-        {
-            "label": "quality_lint",
-            "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build", "--target", "lint"],
-            "group": "build",
-            "detail": "clang-tidyでコードをリント",
-            "dependsOn": ["cmake_configure"]
-        },
-        {
-            "label": "quality_cppcheck",
-            "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build", "--target", "run-cppcheck"],
-            "group": "build",
-            "detail": "cppcheckで静的解析を実行",
-            "dependsOn": ["cmake_configure"]
-        },
-        {
-            "label": "quality_fullcheck",
-            "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build", "--target", "fullcheck"],
-            "group": "build",
-            "detail": "全ての品質チェックを実行",
-            "dependsOn": ["cmake_configure"]
-        },
-        {
-            "label": "build_cli11",
-            "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build", "--target", "cmd_cli11"],
-            "group": "build",
-            "detail": "CLI11版のみビルド",
-            "dependsOn": ["cmake_configure"]
-        },
-        {
-            "label": "build_morris_argparse",
-            "type": "shell",
-            "command": "cmake",
-            "args": ["--build", "build", "--target", "cmd_argparse_morris"],
-            "group": "build",
-            "detail": "Morris argparse版のみビルド",
-            "dependsOn": ["cmake_configure"]
-        },
-        {
-            "label": "run_cli11_demo",
-            "type": "shell",
-            "command": "build/cmd_cli11",
-            "args": ["add", "5", "3"],
-            "group": "build",
-            "detail": "CLI11版でデモ実行",
-            "dependsOn": ["build_cli11"]
-        },
-        {
-            "label": "run_morris_demo",
-            "type": "shell",
-            "command": "build/cmd_argparse_morris",
-            "args": ["add", "--a", "5", "--b", "3"],
-            "group": "build",
-            "detail": "Morris argparse版でデモ実行",
-            "dependsOn": ["build_morris_argparse"]
+            "command": "pixi",
+            "args": ["run", "coverage"],
+            "group": "test",
+            "detail": "カバレッジ計測・HTML レポート生成（build-coverage/）",
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -128,15 +109,8 @@
             "id": "buildPreset",
             "description": "ビルドプリセットを選択",
             "type": "pickString",
-            "options": ["release", "debug", "relwithdebinfo"],
+            "options": ["release", "debug", "relwithdebinfo", "asan"],
             "default": "release"
-        },
-        {
-            "id": "buildType",
-            "description": "ビルドタイプを選択",
-            "type": "pickString",
-            "options": ["Debug", "Release", "RelWithDebInfo", "MinSizeRel"],
-            "default": "Release"
         }
     ]
 }

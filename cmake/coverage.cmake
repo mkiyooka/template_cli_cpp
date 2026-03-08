@@ -3,7 +3,7 @@
 #
 # 生成されるターゲット:
 #   coverage        - テスト実行 → プロファイルデータ統合 → テキストレポート + HTML レポート生成
-#   coverage-report - coverage-html/ の HTML レポートをブラウザで開く (macOS のみ)
+#   coverage-report - HTML レポートのパスを表示する
 
 if(NOT ENABLE_COVERAGE)
     return()
@@ -36,7 +36,7 @@ set(COVERAGE_PROFDATA   "${CMAKE_BINARY_DIR}/coverage.profdata")
 # llvm-cov に渡すオブジェクトフラグ（1つ目がメイン、2つ目以降は --object=）
 set(_FIRST_BIN $<TARGET_FILE:test_config_manager>)
 set(_LLVM_COV_OBJECT_FLAGS
-    "--object=$<TARGET_FILE:test_sut_example>"
+    "--object=$<TARGET_FILE:test_doctest_usage>"
     "--object=$<TARGET_FILE:test_yyjson_wrapper>"
 )
 
@@ -51,7 +51,7 @@ add_custom_target(coverage
         $<TARGET_FILE:test_config_manager>
     COMMAND ${CMAKE_COMMAND} -E env
         "LLVM_PROFILE_FILE=${CMAKE_BINARY_DIR}/coverage-%p.profraw"
-        $<TARGET_FILE:test_sut_example>
+        $<TARGET_FILE:test_doctest_usage>
     COMMAND ${CMAKE_COMMAND} -E env
         "LLVM_PROFILE_FILE=${CMAKE_BINARY_DIR}/coverage-%p.profraw"
         $<TARGET_FILE:test_yyjson_wrapper>
@@ -79,13 +79,11 @@ add_custom_target(coverage
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running coverage analysis"
     VERBATIM
-    DEPENDS test_config_manager test_sut_example test_yyjson_wrapper
+    DEPENDS test_config_manager test_doctest_usage test_yyjson_wrapper
 )
 
-# HTML レポートをブラウザで開くターゲット（macOS 専用）
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    add_custom_target(coverage-report
-        COMMAND open ${COVERAGE_OUTPUT_DIR}/index.html
-        COMMENT "Opening coverage HTML report"
-    )
-endif()
+# HTML レポートのパスを表示するターゲット
+add_custom_target(coverage-report
+    COMMAND ${CMAKE_COMMAND} -E echo "Coverage HTML report: ${COVERAGE_OUTPUT_DIR}/index.html"
+    COMMENT "Coverage HTML report path"
+)

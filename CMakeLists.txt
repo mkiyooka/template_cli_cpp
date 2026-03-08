@@ -98,6 +98,9 @@ include_directories(include)
 # カバレッジフラグ（add_subdirectory より前に設定する必要がある）
 include(cmake/coverage-flags.cmake)
 
+# サニタイザフラグ（add_subdirectory より前に設定する必要がある）
+include(cmake/sanitizer-flags.cmake)
+
 # サードパーティライブラリの導入
 include(FetchContent)
 include(cmake/local-or-fetch.cmake)
