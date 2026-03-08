@@ -35,7 +35,7 @@ valgrind = "==3.26.0"
 [target.linux-64.tasks.asan]
 cmd = """
 cmake --preset=asan &&
-cmake --build build-asan -j 8 &&
+cmake --build build-asan &&
 ctest --test-dir build-asan
 """
 env = { CC = "clang", CXX = "clang++" }
@@ -61,7 +61,7 @@ libgcc-devel_win-64 = "==15.1.0"  # GCC development libraries
 config = "cmake --preset=release"
 config-debug = "cmake --preset=debug"
 
-build = "cmake --build build -j 8"
+build = "cmake --build build"
 test = "ctest --test-dir build"
 
 clean = "cmake --build build --target clean && rm -rf build-asan build-coverage"
@@ -76,7 +76,7 @@ fullcheck = "pixi run typos && pixi run lint && pixi run run-cppcheck"
 # ---- sanitizer workflow ----
 asan = """
 cmake --preset=asan &&
-cmake --build build-asan -j 8 &&
+cmake --build build-asan &&
 ctest --test-dir build-asan
 """
 

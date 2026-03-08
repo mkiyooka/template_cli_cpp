@@ -73,6 +73,20 @@ pixi run asan             # 設定 → ビルド → テストをまとめて実
 pixi run coverage         # 設定 → 計測 → HTML レポート生成（build-coverage/）
 ```
 
+### 並列ビルドジョブ数
+
+`cmake --build` は `-j` 未指定の場合、CMake 3.12 以降ではシステムの論理コア数を自動的に使用する。
+ジョブ数を明示したい場合は環境変数 `CMAKE_BUILD_PARALLEL_LEVEL` を設定するか、`-j` オプションを直接渡す。
+
+```bash
+# 環境変数で指定（セッション全体に適用）
+export CMAKE_BUILD_PARALLEL_LEVEL=8
+pixi run build
+
+# pixi タスクに -j を追加して一時的に指定
+cmake --build build -j 4
+```
+
 詳細なビルドシステムの説明は [docs/build-system.md](docs/build-system.md) を参照。
 
 ## 設定システム
