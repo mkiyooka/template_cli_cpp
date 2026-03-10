@@ -89,7 +89,7 @@ pixi run valgrind         # 全テストを valgrind（memcheck）で実行
 
 ### 並列ビルドジョブ数
 
-`cmake --build` は `-j` 未指定の場合、CMake 3.12 以降ではシステムの論理コア数を自動的に使用する。
+`cmake --build` は `-j` 未指定の場合、デフォルトで 1 並列で動作する（Ninja などのビルドツールがデフォルト並列数を決定するわけではなく、CMake が明示的に並列数を渡さない）。
 ジョブ数を明示したい場合は環境変数 `CMAKE_BUILD_PARALLEL_LEVEL` を設定するか、`-j` オプションを直接渡す。
 
 ```bash
@@ -97,7 +97,7 @@ pixi run valgrind         # 全テストを valgrind（memcheck）で実行
 export CMAKE_BUILD_PARALLEL_LEVEL=8
 pixi run build
 
-# pixi タスクに -j を追加して一時的に指定
+# -j を追加して一時的に指定
 cmake --build build -j 4
 ```
 
