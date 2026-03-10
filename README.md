@@ -6,7 +6,7 @@ pixi による再現性の高い開発環境と、カバレッジ計測・コー
 
 ## 必要条件
 
-- [pixi](https://prefix.dev/docs/pixi/overview)
+- [pixi](https://prefix.dev/)
 - Linux では、`valgrind` が必要な場合はシステムパッケージから別途インストールする（後述）
 
 ### pixi のインストール
