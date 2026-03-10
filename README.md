@@ -7,6 +7,17 @@ pixi による再現性の高い開発環境と、カバレッジ計測・コー
 ## 必要条件
 
 - [pixi](https://prefix.dev/docs/pixi/overview)
+- Linux では、`valgrind` が必要な場合はシステムパッケージから別途インストールする（後述）
+
+### pixi のインストール
+
+```bash
+# Linux / macOS
+curl -fsSL https://pixi.sh/install.sh | bash
+# インストール後にシェルを再起動するか、以下を実行する
+source ~/.bashrc   # bash の場合
+source ~/.zshrc    # zsh の場合
+```
 
 pixi をインストール後、`pixi install` でコンパイラ・ツール類が自動セットアップされる。
 
@@ -58,7 +69,7 @@ pixi run config           # CMake 設定（Release）
 pixi run config-debug     # CMake 設定（Debug）
 pixi run build            # ビルド
 pixi run test             # テスト実行
-pixi run clean            # ビルド成果物をクリーン
+pixi run clean            # ビルド成果物をクリーン（全ビルドディレクトリ対象）
 
 # ---- コード品質 ----
 pixi run format           # clang-format によるコード整形
@@ -66,11 +77,14 @@ pixi run lint             # clang-tidy による静的解析
 pixi run run-cppcheck     # cppcheck による静的解析
 pixi run fullcheck        # typos + lint + cppcheck をまとめて実行
 
-# ---- サニタイザ（ASan + UBSan） ----
+# ---- サニタイザ（ASan + UBSan）: Linux のみ ----
 pixi run asan             # 設定 → ビルド → テストをまとめて実行（build-asan/）
 
 # ---- カバレッジ ----
 pixi run coverage         # 設定 → 計測 → HTML レポート生成（build-coverage/）
+
+# ---- valgrind: Linux のみ、要システムインストール ----
+pixi run valgrind         # 全テストを valgrind（memcheck）で実行
 ```
 
 ### 並列ビルドジョブ数
@@ -88,6 +102,18 @@ cmake --build build -j 4
 ```
 
 詳細なビルドシステムの説明は [docs/build-system.md](docs/build-system.md) を参照。
+
+### valgrind（Linux のみ）
+
+pixi 環境の valgrind はシステムの動的リンカ（`/lib64/ld-linux-x86-64.so.2`）と互換性がないため、システム側のパッケージを使用する。
+
+```bash
+# Ubuntu / Debian
+sudo apt-get install valgrind
+
+# インストール後に実行
+pixi run valgrind
+```
 
 ## 設定システム
 
