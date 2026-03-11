@@ -45,10 +45,10 @@ void ShowConfig(const Config &conf) {
 // DataRecorder のフォーマット:
 //   - MakeCsvFile()      : ヘッダ行を自動出力。Write() で行を追記する。
 //   - MakeJsonLinesFile(): 1行1JSON (NDJSON)。Write() に JSON 文字列を渡す。
-void RunOutputSample(OutputContext<OutputModule> &output_context) {
-    Logger &logger = output_context.GetLogger();
-    DataRecorder &csv_recorder = output_context.GetRecorders()[OutputModule::kResultsCsv];
-    DataRecorder &json_recorder = output_context.GetRecorders()[OutputModule::kResultsJson];
+void RunOutputSample(output::OutputContext<OutputModule> &output_context) {
+    logging::Logger &logger = output_context.GetLogger();
+    recording::DataRecorder &csv_recorder = output_context.GetRecorders()[OutputModule::kResultsCsv];
+    recording::DataRecorder &json_recorder = output_context.GetRecorders()[OutputModule::kResultsJson];
 
     // --- 入力パラメータ ---
     constexpr double kInput = 3.5;
@@ -58,9 +58,9 @@ void RunOutputSample(OutputContext<OutputModule> &output_context) {
     constexpr int kTargetValue = 15;
 
     // 入力変数をログに出力
-    logger.Log(LogLevel::Info, "=== output sample start ===");
+    logger.Log(logging::LogLevel::Info, "=== output sample start ===");
     logger.Log(
-        LogLevel::Info,
+        logging::LogLevel::Info,
         fmt::format(
             "input={}, start={}, count={}, divisor={}, target_value={}", kInput, kStart, kCount, kDivisor, kTargetValue
         )
@@ -75,9 +75,9 @@ void RunOutputSample(OutputContext<OutputModule> &output_context) {
     }
     const int remainder = kTargetValue % kDivisor;
 
-    logger.Log(LogLevel::Debug, fmt::format("doubled({}) = {}", kInput, kDoubled));
-    logger.Log(LogLevel::Debug, fmt::format("sequence({}, {}) size={}", kStart, kCount, sequence.size()));
-    logger.Log(LogLevel::Debug, fmt::format("remainder({}) = {}", kTargetValue, remainder));
+    logger.Log(logging::LogLevel::Debug, fmt::format("doubled({}) = {}", kInput, kDoubled));
+    logger.Log(logging::LogLevel::Debug, fmt::format("sequence({}, {}) size={}", kStart, kCount, sequence.size()));
+    logger.Log(logging::LogLevel::Debug, fmt::format("remainder({}) = {}", kTargetValue, remainder));
 
     // --- CSV 出力（ヘッダはファクトリ生成時に書き込み済み）---
     csv_recorder.Enable();
@@ -89,7 +89,7 @@ void RunOutputSample(OutputContext<OutputModule> &output_context) {
     // --- JSON Lines 出力（1行1JSON / NDJSON）---
     json_recorder.Enable();
 
-    json::JsonBuilder builder;
+    utility::JsonBuilder builder;
 
     // inputs サブオブジェクト
     auto inputs_object = builder.AddNested("inputs");
@@ -110,7 +110,7 @@ void RunOutputSample(OutputContext<OutputModule> &output_context) {
     json_recorder.Flush();
     json_recorder.Disable();
 
-    logger.Log(LogLevel::Info, "=== output sample end ===");
+    logger.Log(logging::LogLevel::Info, "=== output sample end ===");
 }
 
 } // namespace
@@ -165,21 +165,21 @@ int RunCli(int argc, char *argv[]) {
     //
     // Logger: pattern 引数でタイムスタンプ・ロガー名・レベルを含む書式を指定する。
     //   省略時は spdlog のデフォルト書式（"[timestamp][name][level]message"）。
-    auto logger = LoggerFactory::MakeConsole("app", LogLevel::Debug, "[%Y-%m-%d %H:%M:%S.%e][%n][%^%l%$]%v");
+    auto logger = logging::LoggerFactory::MakeConsole("app", logging::LogLevel::Debug, "[%Y-%m-%d %H:%M:%S.%e][%n][%^%l%$]%v");
 
     // DataRecorder: CSV と JSON Lines (NDJSON) の 2 形式を使い分ける例。
     //   MakeCsvFile()      - ヘッダ行を生成時に書き込み、Write() で行を追記。
     //   MakeJsonLinesFile() - Write() に JSON 文字列を渡して 1 行 1 JSON で追記。
-    RecorderManager<OutputModule> recorder_manager;
+    recording::RecorderManager<OutputModule> recorder_manager;
     recorder_manager.RegisterRecorder(
         OutputModule::kResultsCsv,
-        RecorderFactory::MakeCsvFile("results_csv", "output/results.csv", "name,value,remainder")
+        recording::RecorderFactory::MakeCsvFile("results_csv", "output/results.csv", "name,value,remainder")
     );
     recorder_manager.RegisterRecorder(
         OutputModule::kResultsJson,
-        RecorderFactory::MakeJsonLinesFile("results_json", "output/results.jsonl")
+        recording::RecorderFactory::MakeJsonLinesFile("results_json", "output/results.jsonl")
     );
-    OutputContext<OutputModule> output_context(*logger, recorder_manager);
+    output::OutputContext<OutputModule> output_context(*logger, recorder_manager);
     RunOutputSample(output_context);
 
     return 0;

@@ -8,7 +8,7 @@
 #include <vector>
 #include <yyjson.h>
 
-namespace json {
+namespace utility {
 
 /**
  * @brief ネストオブジェクトへの型安全ハンドル
@@ -34,7 +34,7 @@ class NestedObject {
  *
  * 使用例:
  * @code
- * json::JsonBuilder builder;
+ * utility::JsonBuilder builder;
  * builder.Add("name", "John");
  * builder.Add("age", 30);
  * builder.Add("scores", std::vector<int>{95, 87, 92});
@@ -239,4 +239,4 @@ private:
     }
 };
 
-} // namespace json
+} // namespace utility

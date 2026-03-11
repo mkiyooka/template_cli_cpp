@@ -4,6 +4,8 @@
 
 #include <fmt/format.h>
 
+namespace recording {
+
 /**
  * @brief 解析データ記録の共通インターフェース
  *
@@ -70,3 +72,5 @@ public:
         }
     }
 };
+
+} // namespace recording

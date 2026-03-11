@@ -5,6 +5,8 @@
 
 #include "template_cli_cpp/recording/data_recorder.hpp"
 
+namespace recording {
+
 /**
  * @brief モジュール別レコーダーを管理するマネージャー
  *
@@ -60,3 +62,5 @@ private:
 
     std::unordered_map<Key, std::shared_ptr<DataRecorder>, KeyHash> recorders_;
 };
+
+} // namespace recording

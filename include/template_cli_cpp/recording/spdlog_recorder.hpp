@@ -6,6 +6,8 @@
 
 #include "template_cli_cpp/recording/data_recorder.hpp"
 
+namespace recording {
+
 /**
  * @brief spdlog を使った解析データレコーダー
  *
@@ -44,3 +46,5 @@ public:
 private:
     std::shared_ptr<spdlog::logger> logger_;
 };
+
+} // namespace recording

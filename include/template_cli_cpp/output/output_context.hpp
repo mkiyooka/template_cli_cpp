@@ -3,6 +3,8 @@
 #include "template_cli_cpp/logging/logger.hpp"
 #include "template_cli_cpp/recording/recorder_manager.hpp"
 
+namespace output {
+
 /**
  * @brief 出力処理に必要な依存をまとめた DI コンテキスト
  *
@@ -26,21 +28,23 @@
 template <typename Key>
 class OutputContext {
 public:
-    OutputContext(Logger &logger, RecorderManager<Key> &recorders)
+    OutputContext(logging::Logger &logger, recording::RecorderManager<Key> &recorders)
         : logger_(&logger),
           recorders_(&recorders) {}
 
     /**
      * @brief 診断ロガーへの参照を返す
      */
-    Logger &GetLogger() { return *logger_; }
+    logging::Logger &GetLogger() { return *logger_; }
 
     /**
      * @brief レコーダーマネージャーへの参照を返す
      */
-    RecorderManager<Key> &GetRecorders() { return *recorders_; }
+    recording::RecorderManager<Key> &GetRecorders() { return *recorders_; }
 
 private:
-    Logger *logger_;
-    RecorderManager<Key> *recorders_;
+    logging::Logger *logger_;
+    recording::RecorderManager<Key> *recorders_;
 };
+
+} // namespace output

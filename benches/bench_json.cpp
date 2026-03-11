@@ -15,7 +15,7 @@ namespace {
 
 void BenchYyjsonFlat(ankerl::nanobench::Bench &bench) {
     bench.run("yyjson_wrapper  [flat] 5 fields + serialize", [&] {
-        json::JsonBuilder builder;
+        utility::JsonBuilder builder;
         builder.Add("name", "Alice");
         builder.Add("age", 30);
         builder.Add("score", 98.6);
@@ -45,7 +45,7 @@ void BenchNlohmannFlat(ankerl::nanobench::Bench &bench) {
 
 void BenchYyjsonNested(ankerl::nanobench::Bench &bench) {
     bench.run("yyjson_wrapper  [nested] 2-level + serialize", [&] {
-        json::JsonBuilder builder;
+        utility::JsonBuilder builder;
         auto inputs = builder.AddNested("inputs");
         builder.AddToNested(inputs, "x", 3.5);
         builder.AddToNested(inputs, "n", 5);
@@ -76,7 +76,7 @@ void BenchNlohmannNested(ankerl::nanobench::Bench &bench) {
 void BenchYyjsonArray(ankerl::nanobench::Bench &bench) {
     const std::vector<int> seq = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     bench.run("yyjson_wrapper  [array] int[10] + serialize", [&] {
-        json::JsonBuilder builder;
+        utility::JsonBuilder builder;
         builder.Add("seq", seq);
         std::string s = builder.Serialize();
         ankerl::nanobench::doNotOptimizeAway(s);
@@ -101,7 +101,7 @@ void BenchYyjsonComplex(ankerl::nanobench::Bench &bench) {
     const std::vector<int> seq = {1, 2, 3, 4, 5};
     const std::vector<std::string> tags = {"alpha", "beta", "gamma"};
     bench.run("yyjson_wrapper  [complex] flat+nested+array + serialize", [&] {
-        json::JsonBuilder builder;
+        utility::JsonBuilder builder;
         builder.Add("name", "demo");
         builder.Add("version", 1);
         auto meta = builder.AddNested("meta");

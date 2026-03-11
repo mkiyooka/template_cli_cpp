@@ -2,6 +2,8 @@
 
 #include <string_view>
 
+namespace logging {
+
 /**
  * @brief ログレベル定義
  */
@@ -45,10 +47,12 @@ public:
      *
      * コストの高い文字列生成を出力が確定した場合だけ行うために使う。
      * @code
-     * if (logger.ShouldLog(LogLevel::Debug)) {
-     *     logger.Log(LogLevel::Debug, expensive_to_string());
+     * if (logger.ShouldLog(logging::LogLevel::Debug)) {
+     *     logger.Log(logging::LogLevel::Debug, expensive_to_string());
      * }
      * @endcode
      */
     bool ShouldLog(LogLevel lvl) const { return lvl >= Level(); }
 };
+
+} // namespace logging

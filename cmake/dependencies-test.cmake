@@ -16,6 +16,13 @@ add_external_package(nanobench ext/nanobench-4.3.11
 )
 FetchContent_MakeAvailable(nanobench)
 
+# csv-parser - CSV reading library
+add_external_package(csv_parser ext/csv-parser-2.5.1
+    URL https://github.com/vincentlaucsb/csv-parser/archive/refs/tags/2.5.1.tar.gz
+    URL_HASH SHA256=da7128d4946872836f637d5e627cc555cd378e502d866a114a462241ee607da1
+)
+FetchContent_MakeAvailable(csv_parser)
+
 # Mark doctest as system library to exclude it from clang-tidy checks
 if(TARGET doctest)
     get_target_property(doctest_include_dirs doctest INTERFACE_INCLUDE_DIRECTORIES)

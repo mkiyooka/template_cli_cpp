@@ -2,6 +2,8 @@
 
 #include "template_cli_cpp/logging/logger.hpp"
 
+namespace logging {
+
 /**
  * @brief 何も出力しないロガー
  *
@@ -13,3 +15,5 @@ public:
     void SetLevel(LogLevel /*level*/) override {}
     LogLevel Level() const override { return LogLevel::Off; }
 };
+
+} // namespace logging

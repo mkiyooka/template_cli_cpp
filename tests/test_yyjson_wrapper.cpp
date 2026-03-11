@@ -18,42 +18,42 @@ static nlohmann::json Parse(const std::string &s) { return nlohmann::json::parse
 
 TEST_CASE("JsonBuilder: flat object") {
     SUBCASE("int field") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("age", 30);
         auto j = Parse(b.Serialize());
         CHECK(j["age"] == 30);
     }
 
     SUBCASE("double field") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("score", 98.6);
         auto j = Parse(b.Serialize());
         CHECK(j["score"].get<double>() == doctest::Approx(98.6));
     }
 
     SUBCASE("float field is stored as double") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("ratio", 1.5F);
         auto j = Parse(b.Serialize());
         CHECK(j["ratio"].get<double>() == doctest::Approx(1.5));
     }
 
     SUBCASE("bool field true") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("active", true);
         auto j = Parse(b.Serialize());
         CHECK(j["active"] == true);
     }
 
     SUBCASE("bool field false") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("active", false);
         auto j = Parse(b.Serialize());
         CHECK(j["active"] == false);
     }
 
     SUBCASE("std::string field") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         const std::string name = "Alice";
         b.Add("name", name);
         auto j = Parse(b.Serialize());
@@ -61,14 +61,14 @@ TEST_CASE("JsonBuilder: flat object") {
     }
 
     SUBCASE("const char* field") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("city", "Tokyo");
         auto j = Parse(b.Serialize());
         CHECK(j["city"] == "Tokyo");
     }
 
     SUBCASE("multiple fields") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("name", "Bob");
         b.Add("age", 25);
         b.Add("active", true);
@@ -86,7 +86,7 @@ TEST_CASE("JsonBuilder: flat object") {
 
 TEST_CASE("JsonBuilder: array fields") {
     SUBCASE("vector<int>") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("scores", std::vector<int>{10, 20, 30});
         auto j = Parse(b.Serialize());
         REQUIRE(j["scores"].is_array());
@@ -97,7 +97,7 @@ TEST_CASE("JsonBuilder: array fields") {
     }
 
     SUBCASE("vector<std::string>") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("tags", std::vector<std::string>{"alpha", "beta", "gamma"});
         auto j = Parse(b.Serialize());
         REQUIRE(j["tags"].is_array());
@@ -108,7 +108,7 @@ TEST_CASE("JsonBuilder: array fields") {
     }
 
     SUBCASE("empty vector<int>") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("vals", std::vector<int>{});
         auto j = Parse(b.Serialize());
         REQUIRE(j["vals"].is_array());
@@ -122,7 +122,7 @@ TEST_CASE("JsonBuilder: array fields") {
 
 TEST_CASE("JsonBuilder: nested object") {
     SUBCASE("single nesting with scalar fields") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         auto user = b.AddNested("user");
         b.AddToNested(user, "name", "John");
         b.AddToNested(user, "age", 30);
@@ -135,7 +135,7 @@ TEST_CASE("JsonBuilder: nested object") {
     }
 
     SUBCASE("nested double and float") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         auto meta = b.AddNested("meta");
         b.AddToNested(meta, "x", 1.25);
         b.AddToNested(meta, "ratio", 0.5F);
@@ -145,7 +145,7 @@ TEST_CASE("JsonBuilder: nested object") {
     }
 
     SUBCASE("multiple independent nested objects") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         auto inputs = b.AddNested("inputs");
         b.AddToNested(inputs, "x", 3.5);
         b.AddToNested(inputs, "n", 5);
@@ -160,7 +160,7 @@ TEST_CASE("JsonBuilder: nested object") {
     }
 
     SUBCASE("nested object coexists with top-level fields") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         b.Add("version", 1);
         auto meta = b.AddNested("meta");
         b.AddToNested(meta, "author", "test");
@@ -172,7 +172,7 @@ TEST_CASE("JsonBuilder: nested object") {
     }
 
     SUBCASE("nested vector<int> via AddToNested") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         auto data = b.AddNested("data");
         b.AddToNested(data, "values", std::vector<int>{1, 2, 3});
         auto j = Parse(b.Serialize());
@@ -183,7 +183,7 @@ TEST_CASE("JsonBuilder: nested object") {
     }
 
     SUBCASE("nested vector<std::string> via AddToNested") {
-        json::JsonBuilder b;
+        utility::JsonBuilder b;
         auto info = b.AddNested("info");
         b.AddToNested(info, "tags", std::vector<std::string>{"a", "b"});
         auto j = Parse(b.Serialize());
@@ -198,7 +198,7 @@ TEST_CASE("JsonBuilder: nested object") {
 // ──────────────────────────────────────────────────────────────
 
 TEST_CASE("JsonBuilder: complex scenario") {
-    json::JsonBuilder b;
+    utility::JsonBuilder b;
     b.Add("version", 2);
     b.Add("name", "demo");
     auto inputs = b.AddNested("inputs");
@@ -232,7 +232,7 @@ TEST_CASE("JsonBuilder: complex scenario") {
 // ──────────────────────────────────────────────────────────────
 
 TEST_CASE("JsonBuilder: Size and Empty") {
-    json::JsonBuilder b;
+    utility::JsonBuilder b;
     CHECK(b.Empty());
     CHECK(b.Size() == 0);
     b.Add("x", 1);
@@ -241,7 +241,7 @@ TEST_CASE("JsonBuilder: Size and Empty") {
 }
 
 TEST_CASE("JsonBuilder: Clear") {
-    json::JsonBuilder b;
+    utility::JsonBuilder b;
     b.Add("x", 42);
     CHECK(b.Size() == 1);
     b.Clear();
@@ -254,7 +254,7 @@ TEST_CASE("JsonBuilder: Clear") {
 }
 
 TEST_CASE("JsonBuilder: Serialize pretty") {
-    json::JsonBuilder b;
+    utility::JsonBuilder b;
     b.Add("key", "value");
     const std::string compact = b.Serialize(false);
     const std::string pretty = b.Serialize(true);
@@ -266,9 +266,9 @@ TEST_CASE("JsonBuilder: Serialize pretty") {
 }
 
 TEST_CASE("JsonBuilder: move semantics") {
-    json::JsonBuilder b1;
+    utility::JsonBuilder b1;
     b1.Add("val", 10);
-    const json::JsonBuilder b2 = std::move(b1);
+    const utility::JsonBuilder b2 = std::move(b1);
     auto j = Parse(b2.Serialize());
     CHECK(j["val"] == 10);
     // ムーブ後の b1 は空ドキュメントと同等（デストラクタが安全に動く）

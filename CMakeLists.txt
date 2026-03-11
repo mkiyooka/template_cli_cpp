@@ -149,6 +149,7 @@ enable_testing()
 
 add_subdirectory(tests)
 add_subdirectory(benches)
+add_subdirectory(examples)
 
 # カスタムターゲット
 include(cmake/custom-targets.cmake)

@@ -2,6 +2,8 @@
 
 #include "template_cli_cpp/recording/data_recorder.hpp"
 
+namespace recording {
+
 /**
  * @brief 何も出力しないレコーダー
  *
@@ -15,3 +17,5 @@ public:
     void Output(std::string_view /*message*/) override {}
     void Flush() override {}
 };
+
+} // namespace recording

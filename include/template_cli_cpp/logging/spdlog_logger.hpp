@@ -6,6 +6,8 @@
 
 #include "template_cli_cpp/logging/logger.hpp"
 
+namespace logging {
+
 /**
  * @brief spdlog を使ったロガー
  *
@@ -55,3 +57,5 @@ private:
         }
     }
 };
+
+} // namespace logging

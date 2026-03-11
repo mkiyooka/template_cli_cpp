@@ -12,6 +12,8 @@
 #include "template_cli_cpp/logging/null_logger.hpp"
 #include "template_cli_cpp/logging/spdlog_logger.hpp"
 
+namespace logging {
+
 /**
  * @brief Logger インスタンスを生成するファクトリ
  *
@@ -72,3 +74,5 @@ struct LoggerFactory {
      */
     static std::unique_ptr<Logger> MakeNull() { return std::make_unique<NullLogger>(); }
 };
+
+} // namespace logging

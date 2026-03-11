@@ -11,6 +11,8 @@
 #include "template_cli_cpp/recording/null_recorder.hpp"
 #include "template_cli_cpp/recording/spdlog_recorder.hpp"
 
+namespace recording {
+
 /**
  * @brief DataRecorder インスタンスを生成するファクトリ
  *
@@ -103,3 +105,5 @@ struct RecorderFactory {
      */
     static std::unique_ptr<DataRecorder> MakeNull() { return std::make_unique<NullRecorder>(); }
 };
+
+} // namespace recording

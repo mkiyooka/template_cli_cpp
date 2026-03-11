@@ -19,12 +19,12 @@
 Application Core
       │
       ▼
-AppOutput<Module>（DI）
- ├── Logger（診断ログ）
- └── RecorderManager<Module>
-        ├── Module::X → DataRecorder
-        ├── Module::Y → DataRecorder
-        └── Module::Z → DataRecorder
+output::OutputContext<Module>（DI）
+ ├── logging::Logger（診断ログ）
+ └── recording::RecorderManager<Module>
+        ├── Module::X → recording::DataRecorder
+        ├── Module::Y → recording::DataRecorder
+        └── Module::Z → recording::DataRecorder
 ```
 
 - 診断ログと解析データは完全に分離する
@@ -36,32 +36,35 @@ AppOutput<Module>（DI）
 
 - `include/template_cli_cpp/`
     - `logging/`
-        - `logger.hpp` — Logger 抽象基底クラス・LogLevel 定義
+        - `logger.hpp` — `logging::Logger` 抽象基底クラス・`logging::LogLevel` 定義
         - `null_logger.hpp` — 何もしない実装
-        - `test_logger.hpp` — テスト用（メモリ蓄積）実装
         - `spdlog_logger.hpp` — spdlog を使った実装
         - `logger_factory.hpp` — Logger インスタンス生成ファクトリ
     - `recording/`
-        - `data_recorder.hpp` — DataRecorder 抽象基底クラス・`Write()` ヘルパー
+        - `data_recorder.hpp` — `recording::DataRecorder` 抽象基底クラス・`Write()` ヘルパー
         - `null_recorder.hpp` — 何もしない実装
         - `spdlog_recorder.hpp` — spdlog を使った実装
         - `recorder_manager.hpp` — モジュール別管理
         - `recorder_factory.hpp` — DataRecorder インスタンス生成ファクトリ
     - `output/`
-        - `app_output.hpp` — Logger + RecorderManager の DI コンテナ
+        - `output_context.hpp` — `logging::Logger` + `recording::RecorderManager` の DI コンテナ
+
+テスト用:
+
+- `tests/support/spy_logger.hpp` — メモリ蓄積によるテスト検証用 Logger 実装
 
 ---
 
 ## 責務分離
 
-### Logger（診断ログ）
+### logging::Logger（診断ログ）
 
 - デバッグ・進行状況・エラー報告を担う
 - ログレベル制御（trace / debug / info / warn / error / critical）
 - 非同期対応可能
 - 人間向けの可読テキストを出力する
 
-### DataRecorder（解析データ）
+### recording::DataRecorder（解析データ）
 
 - 科学データをモジュール別に記録する
 - Enable / Disable による出力制御（レベル概念なし）
@@ -71,10 +74,12 @@ AppOutput<Module>（DI）
 
 ## インターフェース定義
 
-### Logger
+### logging::Logger
 
 ```cpp
 // include/template_cli_cpp/logging/logger.hpp
+
+namespace logging {
 
 enum class LogLevel : int { Trace = 0, Debug, Info, Warn, Error, Critical, Off };
 
@@ -83,18 +88,22 @@ public:
     virtual ~Logger() = default;
 
     virtual void Log(LogLevel level, std::string_view msg) = 0;
-    virtual void set_level(LogLevel level) = 0;
-    virtual LogLevel level() const = 0;
+    virtual void SetLevel(LogLevel level) = 0;
+    virtual LogLevel Level() const = 0;
 
     // 非仮想ヘルパー: コスト高い文字列生成をレベル確認後に行うために使う
-    bool ShouldLog(LogLevel lvl) const { return lvl >= level(); }
+    bool ShouldLog(LogLevel lvl) const { return lvl >= Level(); }
 };
+
+} // namespace logging
 ```
 
-### DataRecorder
+### recording::DataRecorder
 
 ```cpp
 // include/template_cli_cpp/recording/data_recorder.hpp
+
+namespace recording {
 
 class DataRecorder {
 public:
@@ -111,6 +120,8 @@ public:
     template <typename... Args>
     void Write(fmt::format_string<Args...> fmt_str, Args&&... args);
 };
+
+} // namespace recording
 ```
 
 #### Write() の設計方針
@@ -133,24 +144,22 @@ recorder.Write("{},{:.6f}", step, value);
 ```mermaid
 graph TD
     subgraph logging
-        L["Logger\n（抽象基底）"]
-        NL["NullLogger\n（no-op）"]
-        TL["TestLogger\n（メモリ蓄積）"]
-        SL["SpdlogLogger\n（spdlog）"]
-        LF["LoggerFactory"]
+        L["logging::Logger\n（抽象基底）"]
+        NL["logging::NullLogger\n（no-op）"]
+        SL["logging::SpdlogLogger\n（spdlog）"]
+        LF["logging::LoggerFactory"]
         L --> NL
-        L --> TL
         L --> SL
         LF -.生成.-> SL
         LF -.生成.-> NL
     end
 
     subgraph recording
-        DR["DataRecorder\n（抽象基底）"]
-        NR["NullRecorder\n（no-op）"]
-        SR["SpdlogRecorder\n（spdlog）"]
-        RM["RecorderManager&lt;Key&gt;\n（モジュール管理）"]
-        RF["RecorderFactory"]
+        DR["recording::DataRecorder\n（抽象基底）"]
+        NR["recording::NullRecorder\n（no-op）"]
+        SR["recording::SpdlogRecorder\n（spdlog）"]
+        RM["recording::RecorderManager&lt;Key&gt;\n（モジュール管理）"]
+        RF["recording::RecorderFactory"]
         DR --> NR
         DR --> SR
         RM --> DR
@@ -159,41 +168,41 @@ graph TD
     end
 
     subgraph output
-        AO["AppOutput&lt;Key&gt;\n（DI コンテナ）"]
+        OC["output::OutputContext&lt;Key&gt;\n（DI コンテナ）"]
     end
 
-    AO --> L
-    AO --> RM
+    OC --> L
+    OC --> RM
 ```
 
 ---
 
 ## 各クラスの詳細
 
-### Logger 実装クラス
+### logging::Logger 実装クラス
 
-| クラス         | ファイル            | 用途                      |
-| -------------- | ------------------- | ------------------------- |
-| `NullLogger`   | `null_logger.hpp`   | 何もしない、DI デフォルト |
-| `TestLogger`   | `test_logger.hpp`   | メモリ蓄積、テスト検証用  |
-| `SpdlogLogger` | `spdlog_logger.hpp` | spdlog 同期・非同期       |
+| クラス                    | ファイル            | 用途                      |
+| ------------------------- | ------------------- | ------------------------- |
+| `logging::NullLogger`     | `null_logger.hpp`   | 何もしない、DI デフォルト |
+| `logging::SpdlogLogger`   | `spdlog_logger.hpp` | spdlog 同期・非同期       |
+| `SpyLogger`（tests/）     | `spy_logger.hpp`    | メモリ蓄積、テスト検証用  |
 
-### DataRecorder 実装クラス
+### recording::DataRecorder 実装クラス
 
-| クラス           | ファイル              | 用途                                 |
-| ---------------- | --------------------- | ------------------------------------ |
-| `NullRecorder`   | `null_recorder.hpp`   | 何もしない、DI デフォルト            |
-| `SpdlogRecorder` | `spdlog_recorder.hpp` | spdlog ファイル出力（`%v` パターン） |
+| クラス                      | ファイル              | 用途                                 |
+| --------------------------- | --------------------- | ------------------------------------ |
+| `recording::NullRecorder`   | `null_recorder.hpp`   | 何もしない、DI デフォルト            |
+| `recording::SpdlogRecorder` | `spdlog_recorder.hpp` | spdlog ファイル出力（`%v` パターン） |
 
 SpdlogRecorder はコンストラクタ時に `set_pattern("%v")` を設定し、メッセージのみを出力する（タイムスタンプ等を付加しない）。初期状態は disabled。
 
-### RecorderManager\<Key\>
+### recording::RecorderManager\<Key\>
 
 enum class をキーにして複数の DataRecorder を管理する。
 
 ```cpp
 template <typename Key>
-class RecorderManager {
+class recording::RecorderManager {
 public:
     void RegisterRecorder(Key key, std::shared_ptr<DataRecorder> recorder);
     DataRecorder& operator[](Key key);            // 未登録は out_of_range
@@ -202,17 +211,17 @@ public:
 };
 ```
 
-### AppOutput\<Key\>
+### output::OutputContext\<Key\>
 
 Logger と RecorderManager を一つにまとめ、アプリケーションコアへ DI で注入する。
 
 ```cpp
 template <typename Key>
-class AppOutput {
+class output::OutputContext {
 public:
-    AppOutput(Logger& logger, RecorderManager<Key>& recorders);
-    Logger& logger();
-    RecorderManager<Key>& recorders();
+    OutputContext(logging::Logger& logger, recording::RecorderManager<Key>& recorders);
+    logging::Logger& GetLogger();
+    recording::RecorderManager<Key>& GetRecorders();
 };
 ```
 
@@ -222,28 +231,34 @@ public:
 
 ファクトリは spdlog の初期化手順を呼び出し側から隠蔽する。
 
-### LoggerFactory
+### logging::LoggerFactory
 
 ```cpp
 // ファイルへ書き込む同期ロガー
-auto logger = LoggerFactory::MakeFile("app", "app.log", LogLevel::Info);
+auto logger = logging::LoggerFactory::MakeFile("app", "app.log", logging::LogLevel::Info);
 
 // 標準出力（カラー付き）
-auto logger = LoggerFactory::MakeConsole("app", LogLevel::Debug);
+auto logger = logging::LoggerFactory::MakeConsole("app", logging::LogLevel::Debug);
 
 // 何も出力しない
-auto logger = LoggerFactory::MakeNull();
+auto logger = logging::LoggerFactory::MakeNull();
 ```
 
-### RecorderFactory
+### recording::RecorderFactory
 
 ```cpp
 // ファイルへ書き込む同期レコーダー（初期状態は disabled）
-auto rec = RecorderFactory::MakeFile("moduleX", "moduleX.csv");
+auto rec = recording::RecorderFactory::MakeFile("moduleX", "moduleX.csv");
 rec->Enable();
 
+// CSV ファイル（ヘッダ行を自動出力）
+auto csv = recording::RecorderFactory::MakeCsvFile("results", "results.csv", "step,value");
+
+// JSON Lines (NDJSON) ファイル
+auto jl = recording::RecorderFactory::MakeJsonLinesFile("results", "results.jsonl");
+
 // 何も出力しない
-auto rec = RecorderFactory::MakeNull();
+auto rec = recording::RecorderFactory::MakeNull();
 ```
 
 ---
@@ -270,22 +285,22 @@ FetchContent_MakeAvailable(spdlog)
 
 ```cpp
 #include "template_cli_cpp/logging/logger_factory.hpp"
-#include "template_cli_cpp/output/app_output.hpp"
+#include "template_cli_cpp/output/output_context.hpp"
 #include "template_cli_cpp/recording/recorder_factory.hpp"
 #include "template_cli_cpp/recording/recorder_manager.hpp"
 
 enum class Module { X, Y, Z };
 
 // 診断ロガー
-auto logger = LoggerFactory::MakeFile("diag", "diag.log", LogLevel::Info);
+auto logger = logging::LoggerFactory::MakeFile("diag", "diag.log", logging::LogLevel::Info);
 
 // モジュール別レコーダー
-RecorderManager<Module> manager;
-manager.RegisterRecorder(Module::X, RecorderFactory::MakeFile("moduleX", "moduleX.csv"));
-manager.RegisterRecorder(Module::Y, RecorderFactory::MakeNull());
+recording::RecorderManager<Module> manager;
+manager.RegisterRecorder(Module::X, recording::RecorderFactory::MakeFile("moduleX", "moduleX.csv"));
+manager.RegisterRecorder(Module::Y, recording::RecorderFactory::MakeNull());
 
-// AppOutput に統合して注入
-AppOutput<Module> out(*logger, manager);
+// OutputContext に統合して注入
+output::OutputContext<Module> out(*logger, manager);
 run(out);
 ```
 
@@ -294,20 +309,20 @@ run(out);
 ## 使用例
 
 ```cpp
-void run(AppOutput<Module>& out) {
-    out.logger().Log(LogLevel::Debug, "initialize start");
+void run(output::OutputContext<Module>& out) {
+    out.GetLogger().Log(logging::LogLevel::Debug, "initialize start");
 
-    out.recorders()[Module::X].Enable();
-    out.recorders()[Module::Y].Disable();
+    out.GetRecorders()[Module::X].Enable();
+    out.GetRecorders()[Module::Y].Disable();
 
     for (int step = 0; step < 100; ++step) {
         double value = compute(step);
 
         // fmt::format_string によるコンパイル時チェック付きフォーマット
-        out.recorders()[Module::X].Write("{},{:.6f}", step, value);
+        out.GetRecorders()[Module::X].Write("{},{:.6f}", step, value);
     }
 
-    out.recorders()[Module::X].Flush();
+    out.GetRecorders()[Module::X].Flush();
 }
 ```
 
@@ -326,7 +341,6 @@ void run(AppOutput<Module>& out) {
 
 ## 将来拡張
 
-- `TestRecorder` — メモリ蓄積によるテスト検証用
 - `BufferedRecorder` — バッファリングして一括書き出し
 - `BinaryRecorder` — バイナリ形式（HDF5 等）への出力
 - `MPIRecorder` — MPI ランク別のファイル振り分け

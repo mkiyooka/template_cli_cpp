@@ -25,7 +25,7 @@ constexpr const char *kDiSpdlogAFile = "/tmp/bench_di_spdlog_async.log";
 constexpr int kBatchSize = 1000;
 
 // Logger 経由でログを1件出力する（DI の呼び出し側を模擬）
-void WriteOne(Logger &logger, std::string_view msg) { logger.Log(LogLevel::Info, msg); }
+void WriteOne(logging::Logger &logger, std::string_view msg) { logger.Log(logging::LogLevel::Info, msg); }
 
 } // namespace
 
@@ -52,17 +52,17 @@ int main() {
     // ──────────────────────────────────────────────────────────────
     auto di_spdlog_sync_inner = spdlog::basic_logger_mt("di_spdlog_sync", kDiSpdlogSFile);
     di_spdlog_sync_inner->set_pattern("%v");
-    SpdlogLogger di_spdlog_sync(di_spdlog_sync_inner);
-    di_spdlog_sync.SetLevel(LogLevel::Info);
+    logging::SpdlogLogger di_spdlog_sync(di_spdlog_sync_inner);
+    di_spdlog_sync.SetLevel(logging::LogLevel::Info);
 
     auto di_spdlog_async_inner = spdlog::basic_logger_mt<spdlog::async_factory>("di_spdlog_async", kDiSpdlogAFile);
     di_spdlog_async_inner->set_pattern("%v");
-    SpdlogLogger di_spdlog_async(di_spdlog_async_inner);
-    di_spdlog_async.SetLevel(LogLevel::Info);
+    logging::SpdlogLogger di_spdlog_async(di_spdlog_async_inner);
+    di_spdlog_async.SetLevel(logging::LogLevel::Info);
 
-    NullLogger null_logger;
+    logging::NullLogger null_logger;
     SpyLogger test_logger;
-    test_logger.SetLevel(LogLevel::Info);
+    test_logger.SetLevel(logging::LogLevel::Info);
 
     // ──────────────────────────────────────────────────────────────
     // ベンチマーク

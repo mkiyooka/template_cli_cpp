@@ -16,17 +16,17 @@
  * assert(logger.Entries().size() == 3);
  * @endcode
  */
-class SpyLogger : public Logger {
+class SpyLogger : public logging::Logger {
 public:
-    void Log(LogLevel level, std::string_view message) override {
+    void Log(logging::LogLevel level, std::string_view message) override {
         if (level >= level_) {
             entries_.emplace_back(message);
         }
     }
 
-    void SetLevel(LogLevel level) override { level_ = level; }
+    void SetLevel(logging::LogLevel level) override { level_ = level; }
 
-    LogLevel Level() const override { return level_; }
+    logging::LogLevel Level() const override { return level_; }
 
     /**
      * @brief 蓄積されたログエントリを返す
@@ -39,6 +39,6 @@ public:
     void clear() { entries_.clear(); }
 
 private:
-    LogLevel level_ = LogLevel::Trace;
+    logging::LogLevel level_ = logging::LogLevel::Trace;
     std::vector<std::string> entries_;
 };
