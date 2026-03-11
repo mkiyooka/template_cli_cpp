@@ -93,11 +93,15 @@ TEST_CASE("exception testing") {
     SUBCASE("throws on zero divisor") {
         // std::vector::at は範囲外アクセスで std::out_of_range を投げる
         const std::vector<int> v = {1, 2, 3};
-        CHECK_THROWS_AS(v.at(10), std::out_of_range);
+        int dummy = 0;
+        CHECK_THROWS_AS(dummy = v.at(10), std::out_of_range);
+        (void)dummy;
     }
 
     SUBCASE("does not throw") {
         const std::vector<int> v = {1, 2, 3};
-        CHECK_NOTHROW(v.at(0));
+        int val = 0;
+        CHECK_NOTHROW(val = v.at(0));
+        (void)val;
     }
 }
