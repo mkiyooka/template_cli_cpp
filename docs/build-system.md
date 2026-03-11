@@ -143,6 +143,21 @@ pixi run coverage          # テスト実行 → レポート生成
 pixi run coverage-report   # ブラウザで HTML レポートを開く（macOS のみ）
 ```
 
+### レポート対象の選択
+
+`llvm-cov` の `--ignore-filename-regex` オプションで以下のパスをレポートから除外している。
+
+| 除外パターン | 理由 |
+| ------------ | ---- |
+| `.*/build-coverage/.*` | ビルドディレクトリ内の生成ファイル・サードパーティヘッダ |
+| `.*/third_party/.*` | ローカルキャッシュのサードパーティライブラリ |
+| `.*/.pixi/.*` | pixi 環境の標準ライブラリ・ランタイムヘッダ |
+| `.*/tests/.*` | テストコード自体（計測対象ではない） |
+
+これにより `src/` と `include/` のプロダクションコードのみがレポートに表示される。
+
+フィルタは `cmake/coverage.cmake` の `--ignore-filename-regex` で管理している。
+
 ### 注意事項
 
 - カバレッジビルドは `build-coverage/` を使用する（`build/` とは別）

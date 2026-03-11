@@ -64,7 +64,7 @@ add_custom_target(coverage
         ${_FIRST_BIN}
         ${_LLVM_COV_OBJECT_FLAGS}
         --instr-profile=${COVERAGE_PROFDATA}
-        "--ignore-filename-regex=.*/build-coverage/.*|.*/third_party/.*|.*/.pixi/.*"
+        "--ignore-filename-regex=.*/build-coverage/.*|.*/third_party/.*|.*/.pixi/.*|.*/tests/.*"
     # 5. HTML レポート生成
     COMMAND ${CMAKE_COMMAND} -E echo "=== Generating HTML report: ${COVERAGE_OUTPUT_DIR} ==="
     COMMAND ${CMAKE_COMMAND} -E make_directory ${COVERAGE_OUTPUT_DIR}
@@ -74,7 +74,7 @@ add_custom_target(coverage
         --instr-profile=${COVERAGE_PROFDATA}
         --format=html
         --output-dir=${COVERAGE_OUTPUT_DIR}
-        "--ignore-filename-regex=.*/build-coverage/.*|.*/third_party/.*|.*/.pixi/.*"
+        "--ignore-filename-regex=.*/build-coverage/.*|.*/third_party/.*|.*/.pixi/.*|.*/tests/.*"
     COMMAND ${CMAKE_COMMAND} -E echo "=== HTML report: ${COVERAGE_OUTPUT_DIR}/index.html ==="
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running coverage analysis"
