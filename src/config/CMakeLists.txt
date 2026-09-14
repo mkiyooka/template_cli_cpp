@@ -14,4 +14,5 @@ target_link_libraries(config_lib PUBLIC
     nlohmann_json::nlohmann_json
     fkYAML_target
     fmt::fmt
+    PRIVATE sanitizer_flags
 )

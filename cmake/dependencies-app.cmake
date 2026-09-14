@@ -8,16 +8,16 @@
 #   FetchContent_MakeAvailable(fmt)
 
 # CLI11 - Command line parser
-add_external_package(CLI11 third_party/CLI11-2.5.0
-    URL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.5.0.tar.gz
-    URL_HASH SHA256=17e02b4cddc2fa348e5dbdbb582c59a3486fa2b2433e70a0c3bacb871334fd55
+add_external_package(CLI11 third_party/CLI11-2.6.2
+    URL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.6.2.tar.gz
+    URL_HASH SHA256=c6ea6b2e5608b3ea8617999bd5f47420c71b2ebdb8dc4767c1034d1da5785711
 )
 FetchContent_MakeAvailable(CLI11)
 
 # fmt - Formatting library
-add_external_package(fmt third_party/fmt-12.0.0
-    URL https://github.com/fmtlib/fmt/archive/refs/tags/12.0.0.tar.gz
-    URL_HASH SHA256=aa3e8fbb6a0066c03454434add1f1fc23299e85758ceec0d7d2d974431481e40
+add_external_package(fmt third_party/fmt-12.2.0
+    URL https://github.com/fmtlib/fmt/archive/refs/tags/12.2.0.tar.gz
+    URL_HASH SHA256=8b852bb5aa6e7d8564f9e81394055395dd1d1936d38dfd3a17792a02bebd7af0
 )
 FetchContent_MakeAvailable(fmt)
 
@@ -42,9 +42,9 @@ add_external_package(yyjson third_party/yyjson-0.12.0
 FetchContent_MakeAvailable(yyjson)
 
 # fkYAML - YAML parser (header-only)
-add_external_package(fkYAML third_party/fkYAML-0.4.2
-    URL https://github.com/fktn-k/fkYAML/releases/download/v0.4.2/fkYAML.tgz
-    URL_HASH SHA256=6fbdbd94094b467ea37a64ccfe042588353feda097b1a5348f8cd12b914ad2cd
+add_external_package(fkYAML third_party/fkYAML-0.4.3
+    URL https://github.com/fktn-k/fkYAML/releases/download/v0.4.3/fkYAML.tgz
+    URL_HASH SHA256=2ef4c356fe3ef555694932eb6bf3de6b9893f14f425d743ff0e6a33d2465896d
 )
 FetchContent_MakeAvailable(fkYAML)
 

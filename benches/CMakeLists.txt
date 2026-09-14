@@ -12,6 +12,7 @@ target_include_directories(bench_logger PRIVATE
 target_link_libraries(bench_logger PRIVATE
     spdlog::spdlog
     nanobench::nanobench
+    PRIVATE sanitizer_flags
 )
 
 # JSON benchmark
@@ -23,14 +24,5 @@ target_link_libraries(bench_json PRIVATE
     yyjson
     nlohmann_json::nlohmann_json
     nanobench::nanobench
-)
-
-# CSV benchmark
-add_executable(bench_csv
-    bench_csv.cpp
-)
-target_include_directories(bench_csv PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(bench_csv PRIVATE
-    csv
-    nanobench::nanobench
+    PRIVATE sanitizer_flags
 )

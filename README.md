@@ -46,19 +46,19 @@ pixi run test     # テスト実行
 
 | ライブラリ    | バージョン | 用途                          |
 | ------------- | ---------- | ----------------------------- |
-| CLI11         | 2.5.0      | コマンドライン引数解析        |
-| fmt           | 12.0.0     | 文字列フォーマット            |
+| CLI11         | 2.6.2      | コマンドライン引数解析        |
+| fmt           | 12.2.0     | 文字列フォーマット            |
 | toml++        | 3.4.0      | TOML 設定ファイル解析         |
 | nlohmann/json | 3.12.0     | JSON / JSONC 設定ファイル解析 |
 | yyjson        | 0.12.0     | 高速 JSON 読み書き            |
-| fkYAML        | 0.4.2      | YAML 設定ファイル解析         |
+| fkYAML        | 0.4.3      | YAML 設定ファイル解析         |
 | spdlog        | 1.17.0     | ロギング                      |
 
 ### テスト・ベンチマーク
 
 | ライブラリ | バージョン | 用途                 |
 | ---------- | ---------- | -------------------- |
-| doctest    | 2.4.11     | テストフレームワーク |
+| doctest    | 2.5.3      | テストフレームワーク |
 | nanobench  | 4.3.11     | マイクロベンチマーク |
 
 ## 主要タスク一覧
@@ -71,20 +71,20 @@ pixi run build            # ビルド
 pixi run test             # テスト実行
 pixi run clean            # ビルド成果物をクリーン（全ビルドディレクトリ対象）
 
-# ---- コード品質 ----
-pixi run format           # clang-format によるコード整形
-pixi run lint             # clang-tidy による静的解析
-pixi run run-cppcheck     # cppcheck による静的解析
-pixi run fullcheck        # typos + lint + cppcheck をまとめて実行
+# ---- コード品質（dev 環境が必要: pixi install -e dev） ----
+pixi run -e dev format           # clang-format によるコード整形
+pixi run -e dev lint             # clang-tidy による静的解析
+pixi run -e dev run-cppcheck     # cppcheck による静的解析
+pixi run -e dev fullcheck        # typos + lint + cppcheck をまとめて実行
 
-# ---- サニタイザ（ASan + UBSan）: Linux のみ ----
-pixi run asan             # 設定 → ビルド → テストをまとめて実行（build-asan/）
+# ---- サニタイザ（ASan + UBSan）: Linux のみ、dev 環境が必要 ----
+pixi run -e dev asan             # 設定 → ビルド → テストをまとめて実行（build-asan/）
 
-# ---- カバレッジ ----
-pixi run coverage         # 設定 → 計測 → HTML レポート生成（build-coverage/）
+# ---- カバレッジ（dev 環境が必要） ----
+pixi run -e dev coverage         # 設定 → 計測 → HTML レポート生成（build-coverage/）
 
 # ---- valgrind: Linux のみ、要システムインストール ----
-pixi run valgrind         # 全テストを valgrind（memcheck）で実行
+pixi run valgrind         # 全テストを valgrind（memcheck）で実行（dev 環境不要）
 ```
 
 ### 並列ビルドジョブ数
