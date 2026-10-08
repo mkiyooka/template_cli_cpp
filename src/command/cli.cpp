@@ -58,9 +58,9 @@ void RunOutputSample(output::OutputContext<OutputModule> &output_context) {
     constexpr int kTargetValue = 15;
 
     // 入力変数をログに出力
-    logger.Log(logging::LogLevel::Info, "=== output sample start ===");
+    logger.Log(logging::LogLevel::kInfo, "=== output sample start ===");
     logger.Log(
-        logging::LogLevel::Info,
+        logging::LogLevel::kInfo,
         fmt::format(
             "input={}, start={}, count={}, divisor={}, target_value={}", kInput, kStart, kCount, kDivisor, kTargetValue
         )
@@ -75,9 +75,9 @@ void RunOutputSample(output::OutputContext<OutputModule> &output_context) {
     }
     const int remainder = kTargetValue % kDivisor;
 
-    logger.Log(logging::LogLevel::Debug, fmt::format("doubled({}) = {}", kInput, kDoubled));
-    logger.Log(logging::LogLevel::Debug, fmt::format("sequence({}, {}) size={}", kStart, kCount, sequence.size()));
-    logger.Log(logging::LogLevel::Debug, fmt::format("remainder({}) = {}", kTargetValue, remainder));
+    logger.Log(logging::LogLevel::kDebug, fmt::format("doubled({}) = {}", kInput, kDoubled));
+    logger.Log(logging::LogLevel::kDebug, fmt::format("sequence({}, {}) size={}", kStart, kCount, sequence.size()));
+    logger.Log(logging::LogLevel::kDebug, fmt::format("remainder({}) = {}", kTargetValue, remainder));
 
     // --- CSV 出力（ヘッダはファクトリ生成時に書き込み済み）---
     csv_recorder.Enable();
@@ -110,7 +110,7 @@ void RunOutputSample(output::OutputContext<OutputModule> &output_context) {
     json_recorder.Flush();
     json_recorder.Disable();
 
-    logger.Log(logging::LogLevel::Info, "=== output sample end ===");
+    logger.Log(logging::LogLevel::kInfo, "=== output sample end ===");
 }
 
 } // namespace
@@ -165,7 +165,8 @@ int RunCli(int argc, char *argv[]) {
     //
     // Logger: pattern 引数でタイムスタンプ・ロガー名・レベルを含む書式を指定する。
     //   省略時は spdlog のデフォルト書式（"[timestamp][name][level]message"）。
-    auto logger = logging::LoggerFactory::MakeConsole("app", logging::LogLevel::Debug, "[%Y-%m-%d %H:%M:%S.%e][%n][%^%l%$]%v");
+    auto logger =
+        logging::LoggerFactory::MakeConsole("app", logging::LogLevel::kDebug, "[%Y-%m-%d %H:%M:%S.%e][%n][%^%l%$]%v");
 
     // DataRecorder: CSV と JSON Lines (NDJSON) の 2 形式を使い分ける例。
     //   MakeCsvFile()      - ヘッダ行を生成時に書き込み、Write() で行を追記。

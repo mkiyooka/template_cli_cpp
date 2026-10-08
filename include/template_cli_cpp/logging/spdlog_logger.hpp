@@ -36,21 +36,21 @@ public:
 
 private:
     std::shared_ptr<spdlog::logger> logger_;
-    LogLevel level_ = LogLevel::Trace;
+    LogLevel level_ = LogLevel::kTrace;
 
     static spdlog::level::level_enum ToSpdlogLevel(LogLevel lvl) {
         switch (lvl) {
-            case LogLevel::Trace:
+            case LogLevel::kTrace:
                 return spdlog::level::trace;
-            case LogLevel::Debug:
+            case LogLevel::kDebug:
                 return spdlog::level::debug;
-            case LogLevel::Info:
+            case LogLevel::kInfo:
                 return spdlog::level::info;
-            case LogLevel::Warn:
+            case LogLevel::kWarn:
                 return spdlog::level::warn;
-            case LogLevel::Error:
+            case LogLevel::kError:
                 return spdlog::level::err;
-            case LogLevel::Critical:
+            case LogLevel::kCritical:
                 return spdlog::level::critical;
             default:
                 return spdlog::level::off;

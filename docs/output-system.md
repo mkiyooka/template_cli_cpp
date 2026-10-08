@@ -235,10 +235,10 @@ public:
 
 ```cpp
 // ファイルへ書き込む同期ロガー
-auto logger = logging::LoggerFactory::MakeFile("app", "app.log", logging::LogLevel::Info);
+auto logger = logging::LoggerFactory::MakeFile("app", "app.log", logging::LogLevel::kInfo);
 
 // 標準出力（カラー付き）
-auto logger = logging::LoggerFactory::MakeConsole("app", logging::LogLevel::Debug);
+auto logger = logging::LoggerFactory::MakeConsole("app", logging::LogLevel::kDebug);
 
 // 何も出力しない
 auto logger = logging::LoggerFactory::MakeNull();
@@ -292,7 +292,7 @@ FetchContent_MakeAvailable(spdlog)
 enum class Module { X, Y, Z };
 
 // 診断ロガー
-auto logger = logging::LoggerFactory::MakeFile("diag", "diag.log", logging::LogLevel::Info);
+auto logger = logging::LoggerFactory::MakeFile("diag", "diag.log", logging::LogLevel::kInfo);
 
 // モジュール別レコーダー
 recording::RecorderManager<Module> manager;
@@ -310,7 +310,7 @@ run(out);
 
 ```cpp
 void run(output::OutputContext<Module>& out) {
-    out.GetLogger().Log(logging::LogLevel::Debug, "initialize start");
+    out.GetLogger().Log(logging::LogLevel::kDebug, "initialize start");
 
     out.GetRecorders()[Module::X].Enable();
     out.GetRecorders()[Module::Y].Disable();

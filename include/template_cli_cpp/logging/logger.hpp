@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string_view>
 
 namespace logging {
@@ -7,7 +8,7 @@ namespace logging {
 /**
  * @brief ログレベル定義
  */
-enum class LogLevel : int { Trace = 0, Debug, Info, Warn, Error, Critical, Off };
+enum class LogLevel : std::uint8_t { kTrace = 0, kDebug, kInfo, kWarn, kError, kCritical, kOff };
 
 /**
  * @brief ロガーの共通インターフェース
@@ -47,8 +48,8 @@ public:
      *
      * コストの高い文字列生成を出力が確定した場合だけ行うために使う。
      * @code
-     * if (logger.ShouldLog(logging::LogLevel::Debug)) {
-     *     logger.Log(logging::LogLevel::Debug, expensive_to_string());
+     * if (logger.ShouldLog(logging::LogLevel::kDebug)) {
+     *     logger.Log(logging::LogLevel::kDebug, expensive_to_string());
      * }
      * @endcode
      */

@@ -19,7 +19,7 @@ namespace output {
  * OutputContext<Module> output_context(logger, recorder_manager);
  *
  * void run(OutputContext<Module>& output_context) {
- *     output_context.GetLogger().Log(LogLevel::Debug, "initialize start");
+ *     output_context.GetLogger().Log(LogLevel::kDebug, "initialize start");
  *     output_context.GetRecorders()[Module::X].Enable();
  *     output_context.GetRecorders()[Module::X].Write("{},{:.6f}", step, value);
  * }

@@ -39,6 +39,6 @@ public:
     void clear() { entries_.clear(); }
 
 private:
-    logging::LogLevel level_ = logging::LogLevel::Trace;
+    logging::LogLevel level_ = logging::LogLevel::kTrace;
     std::vector<std::string> entries_;
 };

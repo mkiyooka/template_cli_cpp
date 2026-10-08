@@ -23,7 +23,7 @@ enum class Module { Solver, Postproc };
 #include "template_cli_cpp/recording/recorder_manager.hpp"
 
 // 診断ログ: コンソール出力、Info レベル以上
-auto logger = logging::LoggerFactory::MakeConsole("app", logging::LogLevel::Info);
+auto logger = logging::LoggerFactory::MakeConsole("app", logging::LogLevel::kInfo);
 
 // 解析データ: モジュールごとにファイル出力
 recording::RecorderManager<Module> manager;
@@ -47,19 +47,19 @@ run(out);
 ```cpp
 logging::Logger& log = out.GetLogger();
 
-log.Log(logging::LogLevel::Trace,    "詳細トレース");
-log.Log(logging::LogLevel::Debug,    "デバッグ情報");
-log.Log(logging::LogLevel::Info,     "進行状況");
-log.Log(logging::LogLevel::Warn,     "警告");
-log.Log(logging::LogLevel::Error,    "エラー");
-log.Log(logging::LogLevel::Critical, "致命的エラー");
+log.Log(logging::LogLevel::kTrace,    "詳細トレース");
+log.Log(logging::LogLevel::kDebug,    "デバッグ情報");
+log.Log(logging::LogLevel::kInfo,     "進行状況");
+log.Log(logging::LogLevel::kWarn,     "警告");
+log.Log(logging::LogLevel::kError,    "エラー");
+log.Log(logging::LogLevel::kCritical, "致命的エラー");
 ```
 
 コスト高な文字列生成はレベル確認後に行う。
 
 ```cpp
-if (log.ShouldLog(logging::LogLevel::Debug)) {
-    log.Log(logging::LogLevel::Debug, expensive_to_string(state));
+if (log.ShouldLog(logging::LogLevel::kDebug)) {
+    log.Log(logging::LogLevel::kDebug, expensive_to_string(state));
 }
 ```
 
@@ -124,7 +124,7 @@ logging::NullLogger null_log;
 
 // ログ内容を検証したい場合
 SpyLogger test_log;
-test_log.SetLevel(logging::LogLevel::Debug);
+test_log.SetLevel(logging::LogLevel::kDebug);
 
 recording::RecorderManager<Module> manager;
 manager.RegisterRecorder(Module::Solver, std::make_shared<recording::NullRecorder>());
@@ -152,7 +152,7 @@ void run(output::OutputContext<Module>& out) {
     for (int step = 0; step < steps; ++step) {
         double x = compute(step);
         out.GetRecorders()[Module::Solver].Write("{},{:.9f}", step, x);
-        out.GetLogger().Log(logging::LogLevel::Debug, "step done");
+        out.GetLogger().Log(logging::LogLevel::kDebug, "step done");
     }
 
     out.GetRecorders().FlushAll();
@@ -175,5 +175,5 @@ run(out); // I/O コストゼロ
 ### ログレベルを動的に変更する
 
 ```cpp
-out.GetLogger().SetLevel(logging::LogLevel::Warn); // Debug・Info を抑制
+out.GetLogger().SetLevel(logging::LogLevel::kWarn); // Debug・Info を抑制
 ```

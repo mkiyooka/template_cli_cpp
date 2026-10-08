@@ -22,12 +22,12 @@ namespace logging {
  *
  * @code
  * // デフォルトパターン（spdlog 標準書式）
- * auto logger = LoggerFactory::MakeConsole("app", LogLevel::Info);
+ * auto logger = LoggerFactory::MakeConsole("app", LogLevel::kInfo);
  *
  * // カスタムパターン（タイムスタンプ・名前・レベル付き）
  * // spdlog パターン記号: %Y=年 %m=月 %d=日 %H=時 %M=分 %S=秒 %e=ミリ秒
  * //                      %n=ロガー名 %l=レベル(小文字) %L=レベル(1文字) %v=メッセージ
- * auto logger = LoggerFactory::MakeConsole("app", LogLevel::Debug,
+ * auto logger = LoggerFactory::MakeConsole("app", LogLevel::kDebug,
  *                                          "[%Y-%m-%d %H:%M:%S.%e][%n][%l]%v");
  * @endcode
  */
@@ -39,7 +39,7 @@ struct LoggerFactory {
      * @param pattern spdlog パターン文字列（空文字列の場合は spdlog デフォルト）
      */
     static std::unique_ptr<Logger>
-    MakeConsole(const std::string &name, LogLevel level = LogLevel::Info, const std::string &pattern = "") {
+    MakeConsole(const std::string &name, LogLevel level = LogLevel::kInfo, const std::string &pattern = "") {
         auto inner = spdlog::stdout_color_mt(name);
         if (!pattern.empty()) {
             inner->set_pattern(pattern);
@@ -57,7 +57,7 @@ struct LoggerFactory {
      * @param pattern   spdlog パターン文字列（空文字列の場合は spdlog デフォルト）
      */
     static std::unique_ptr<Logger> MakeFile(
-        const std::string &name, const std::string &file_path, LogLevel level = LogLevel::Info,
+        const std::string &name, const std::string &file_path, LogLevel level = LogLevel::kInfo,
         const std::string &pattern = ""
     ) {
         auto inner = spdlog::basic_logger_mt(name, file_path);
